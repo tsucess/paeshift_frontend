@@ -1,0 +1,17 @@
+.btn-purple {
+    background-color: #6a0dad;
+    border-color: #6a0dad;
+}
+
+.btn-purple:hover {
+    background-color: #6a0dad;
+    opacity: 0.8 !important;
+}
+
+.text-purple {
+    color: #6a0dad;
+}
+
+.border-purple {
+    border: 1px solid #6a0dad;
+}

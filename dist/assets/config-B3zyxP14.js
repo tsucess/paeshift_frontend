@@ -1,0 +1,1 @@
+const t="http://127.0.0.1:8000",l=(s="")=>{const c=t.endsWith("/")?t.slice(0,-1):t,e=s.startsWith("/")?s:`/${s}`;return`${c}${e}`},A={SHIFT_STARTED:"Shift started successfully!",SHIFT_ENDED:"Shift ended successfully!",JOB_SAVED:"Job saved successfully!",JOB_APPLIED:"Job Applied successfully!",APPLICANT_ARRIVAL:"I'm the Job location!"};export{t as A,A as N,l as g};

@@ -1,0 +1,97 @@
+/* Modal Custom CSS  */
+/* .modal-dialog, */
+#jobPreviewmodal.come-from-modal.right .modal-dialog {
+  top: 100px;
+  /* padding: 16px !important; */
+  text-align: left;
+}
+
+#jobPreviewmodal.come-from-modal.right .modal-dialog .modal-content {
+  padding: 24px 8px !important;
+  border-radius: 24px;
+}
+
+
+
+#jobPreviewmodal.come-from-modal.right .header h1 {
+  font-family: var(--font-family-body);
+  font-weight: 700;
+  font-size: 24px;
+  margin: 1rem auto;
+  text-align: left !important;
+}
+
+
+
+#jobPreviewmodal.come-from-modal.right .modal-body {
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#jobPreviewmodal.come-from-modal.right .modal-body .job-details {
+  border-radius: 8px;
+  background-color: var(--color-bg);
+  padding: 10px;
+}
+
+#jobPreviewmodal.come-from-modal.right .modal-body .job-details h4 {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 100%;
+}
+
+#jobPreviewmodal.come-from-modal.right .modal-body .job-details span b{
+  font-size: 10px;
+}
+
+#jobPreviewmodal.come-from-modal.right .modal-body .job-details span {
+  font-size: 10px;
+  line-height: 100%;
+}
+
+#jobPreviewmodal.come-from-modal.right .btn-close {
+  border: 1px solid var(--color-text-ash);
+  border-radius: 50%;
+  font-size: 0.625rem;
+}
+
+
+
+#jobPreviewmodal.come-from-modal.right .row button.delete-btn {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  color: var(--color-text-red);
+  border-radius: 8px;
+  border: 0.5px solid var(--color-text-red);
+  width: 100%;
+  padding: 14px;
+}
+
+#jobPreviewmodal.come-from-modal.right .row button.preview-btn {
+  line-height: 12px;
+  background-color: var(--color-bg-light);
+  color: var(--primary-purple);
+  padding: 14px;
+  border-radius: 8px;
+  width: 100%;
+  font-family: Bricolage Grotesque;
+  font-weight: 500;
+  font-size: 12px;
+
+}
+
+#jobPreviewmodal.come-from-modal.right .row button.proceed-btn {
+  line-height: 12px;
+  background-color: var(--primary-purple);
+  color: var(--color-text-white);
+  padding: 14px;
+  border-radius: 8px;
+  width: 100%;
+  font-family: Bricolage Grotesque;
+  font-weight: 500;
+  font-size: 12px;
+
+}

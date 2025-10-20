@@ -1,0 +1,85 @@
+import React, { useState, useEffect } from "react";
+import iconSuccess from "../../assets/images/success.png"
+import "./JobPreviewmodal.css";
+import Axios from "axios";
+import PaymentMethodmodal from "../paymentmethodmodal/PaymentMethodmodal";
+
+const JobPreviewmodal = ({ itemData, handleDelete }) => {
+    const [profile, setProfile] = useState({});
+
+    // Fetch user profile for payment
+    useEffect(() => {
+        Axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/accounts/whoami`)
+            .then((response) => {
+                setProfile(response.data);
+            })
+            .catch((error) => console.error(error));
+    }, []);
+
+    return (
+        <div className="modal fade come-from-modal right text-center" id="jobPreviewmodal" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div className="modal-dialog">
+                <div className="modal-content">
+                    <div className="modal-header border-0">
+                        <h1>Review Job Request</h1>
+                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    {itemData &&
+                        <div className="modal-body mb-0 pb-0">
+
+                            <div className="job-details">
+                                <div className="row m-0">
+                                    <h4>Main Details</h4>
+                                    <div className="col-12"><span>Job Title: <b>{itemData.title}</b></span></div>
+                                    <div className="col-12"><span>Location: <b>{itemData.location}</b></span></div>
+                                    <div className="col-6 pe-0"><span>Job Category: <b>{itemData.industry_name}</b></span></div>
+                                    <div className="col-6 px-0"><span>Sub Category: <b>{itemData.subcategory}</b></span></div>
+                                    <div className="col-6"><span>Job rate per hour: <b>₦{itemData.rate}/hr</b></span></div>
+                                    <div className="col-6 px-0">  <span>Applicant Needed: <b>{itemData.applicants_needed}</b></span></div>
+                                </div>
+
+                            </div>
+                            <div className="job-details">
+                                <div className="row m-0">
+                                    <h4>Job Timeline/Scope</h4>
+                                    <div className="col-6"><span>Type of Job: <b>{itemData.job_type === "single_day" ? "A day job": "Multiple day"}</b></span></div>
+                                    <div className="col-6 px-0"><span>Type of Shift: <b>{itemData.shift_type === "day"? "Day Shift": itemData.shift_type === "night" ? "Night Shift" : "Afternoon shift"}</b></span></div>
+                                    <div className="col-6"><span>Date: <b>{itemData.date_human}</b></span></div>
+                                    <div className="col-6 px-0"><span>Start Time: <b>{itemData.start_time_human}</b></span></div>
+                                    <div className="col-6"><span>End Time: <b>{itemData.end_time_human}</b></span></div>
+                                    <div className="col-6 px-0"><span>Total Cost <b>{itemData.total_amount}</b></span></div>
+                                </div>
+                            </div>
+
+                            <div className="row m-0 p-0">
+                                <div className="col-3 text-center">
+                                    <button type="button" name='submit' data-bs-dismiss="modal" className="btn delete-btn " onClick={() => handleDelete(itemData.id)}>Delete</button>
+                                </div>
+                                <div className="col-4">
+                                    <button type="submit" className="btn preview-btn" data-bs-toggle="modal" data-bs-target="#editpostModal" >Back to Form</button>
+                                </div>
+                                <div className="col-5">
+                                    <button
+                                        type="submit"
+                                        className="btn proceed-btn"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#paymentMethodModal"
+                                    >
+                                        Proceed to Payment
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+
+        </div >
+
+        {/* Include the PaymentMethodmodal component and pass the job data */}
+        <PaymentMethodmodal currentProfile={profile} paymentJobData={itemData} />
+    )
+}
+
+export default JobPreviewmodal

@@ -1,0 +1,52 @@
+.text-purple {
+  color: #6a1b9a;
+}
+
+.bg-light-purple {
+  background-color: #f3e8ff;
+}
+
+
+
+#AccountModal .modal-content{
+   border-radius: 1.2rem;
+   padding: 1rem;
+}
+
+
+#AccountModal .modal-header button.btn-close {
+    border: 0.1rem solid #343434;
+    padding: 0.4rem;
+    border-radius: 50%;
+    font-size: 0.6rem;
+}
+
+#AccountModal  .bank-name {
+    border: 0.1rem solid #343434;
+    padding: 1rem;
+    border-radius: 0.625rem;
+    background-color: #FAF9FB;
+    
+}
+
+#AccountModal  select,
+#AccountModal  input {
+    padding: 0.8rem;
+    border-radius: 0.625rem;  
+}
+
+#AccountModal .back-btn {
+  border: 0.05rem solid #6a1b9a;
+  color: #6a1b9a;
+}
+
+#AccountModal .submit-btn{
+  background-color: #6a1b9a;
+  color: white;
+}
+#AccountModal .submit-btn:hover,
+#AccountModal .back-btn:hover {
+  background-color: #e6bcffbd;
+  color: #6a1b9a;
+  border: none;
+}

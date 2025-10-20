@@ -1,0 +1,224 @@
+/* Invoice Receipt Modal Styles */
+
+#paymentDetailsModal.come-from-modal.right .invoice-receipt-modal {
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  border: none;
+}
+
+#paymentDetailsModal.come-from-modal.right .invoice-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 1.5rem;
+  background-color: #fafafa;
+}
+
+#paymentDetailsModal.come-from-modal.right .invoice-header .modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+#paymentDetailsModal.come-from-modal.right .invoice-header .btn-close {
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+}
+
+#paymentDetailsModal.come-from-modal.right .invoice-body {
+  padding: 2rem 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Logo Section */
+#paymentDetailsModal.come-from-modal.right .invoice-logo-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+#paymentDetailsModal.come-from-modal.right .invoice-logo {
+  max-width: 120px;
+  height: auto;
+}
+
+/* Payment Section */
+#paymentDetailsModal.come-from-modal.right .invoice-payment-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  border: 1px solid #f0f0f0;
+}
+
+#paymentDetailsModal.come-from-modal.right .payment-method-badge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#paymentDetailsModal.come-from-modal.right .payment-method-icon {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  background-color: #5E0096;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+#paymentDetailsModal.come-from-modal.right .payment-method-info {
+  display: flex;
+  flex-direction: column;
+}
+
+#paymentDetailsModal.come-from-modal.right .payment-method-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+#paymentDetailsModal.come-from-modal.right .payment-method-detail {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0;
+}
+
+#paymentDetailsModal.come-from-modal.right .payment-amount {
+  text-align: right;
+}
+
+#paymentDetailsModal.come-from-modal.right .amount-label {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0;
+}
+
+#paymentDetailsModal.come-from-modal.right .amount-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #5E0096;
+  margin: 0;
+}
+
+/* Details Section */
+#paymentDetailsModal.come-from-modal.right .invoice-details-section,
+#paymentDetailsModal.come-from-modal.right .invoice-job-section,
+#paymentDetailsModal.come-from-modal.right .invoice-workers-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #fafafa;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+}
+
+#paymentDetailsModal.come-from-modal.right .detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+#paymentDetailsModal.come-from-modal.right .detail-row:last-child {
+  border-bottom: none;
+}
+
+#paymentDetailsModal.come-from-modal.right .detail-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+#paymentDetailsModal.come-from-modal.right .detail-value {
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  font-weight: 600;
+  text-align: right;
+}
+
+#paymentDetailsModal.come-from-modal.right .worker-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+#paymentDetailsModal.come-from-modal.right .worker-row:last-child {
+  border-bottom: none;
+}
+
+#paymentDetailsModal.come-from-modal.right .worker-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+#paymentDetailsModal.come-from-modal.right .worker-value {
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+/* Loading State */
+#paymentDetailsModal.come-from-modal.right .loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #999;
+  font-size: 1rem;
+}
+
+/* Footer */
+#paymentDetailsModal.come-from-modal.right .invoice-footer {
+  border-top: 1px solid #f0f0f0;
+  padding: 1.5rem;
+  background-color: #fafafa;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+#paymentDetailsModal.come-from-modal.right .invoice-footer .btn {
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  min-width: 120px;
+}
+
+#paymentDetailsModal.come-from-modal.right .invoice-footer .btn-primary {
+  background-color: #5E0096;
+  border-color: #5E0096;
+  color: white;
+}
+
+#paymentDetailsModal.come-from-modal.right .invoice-footer .btn-primary:hover {
+  background-color: #4a0073;
+  border-color: #4a0073;
+}
+
+#paymentDetailsModal.come-from-modal.right .invoice-footer .btn-outline-primary {
+  border: 2px solid #5E0096;
+  color: #5E0096;
+  background-color: white;
+}
+
+#paymentDetailsModal.come-from-modal.right .invoice-footer .btn-outline-primary:hover {
+  background-color: #f9f9f9;
+  border-color: #5E0096;
+  color: #5E0096;
+}

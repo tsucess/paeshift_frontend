@@ -1,0 +1,311 @@
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from "react-router-dom";
+import brandLogo from "../assets/images/logo-sm.png";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import Axios from "axios";
+
+
+
+
+const VerificationScreen = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Get email and verification type from URL params or state
+    const [email, setEmail] = useState("");
+    const [verificationType, setVerificationType] = useState("signup"); // Default to signup
+    const [isLoading, setIsLoading] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(60); // 60 seconds countdown for resend
+    const [otp, setOtp] = useState(new Array(6).fill(""));
+
+    // Get email and verification type from location state or query params
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const emailParam = params.get('email');
+        const typeParam = params.get('type');
+
+        // Set email from params or state
+        if (emailParam) {
+            setEmail(emailParam);
+        } else if (location.state?.email) {
+            setEmail(location.state.email);
+        }
+
+        // Set verification type from params or state
+        if (typeParam) {
+            setVerificationType(typeParam);
+        } else if (location.state?.verificationType) {
+            setVerificationType(location.state.verificationType);
+        }
+    }, [location]);
+
+    // Countdown timer for resend OTP
+    useEffect(() => {
+        if (timeLeft <= 0) return;
+
+        const timerId = setInterval(() => {
+            setTimeLeft(prevTime => prevTime - 1);
+        }, 1000);
+
+        return () => clearInterval(timerId);
+    }, [timeLeft]);
+
+    // Dynamic notification
+    const notify = (val) =>
+        toast.success(val, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+        });
+
+    // Dynamic notification
+    const errorNotify = (val) =>
+        toast.error(val, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+        });
+
+    function handleInput(e, index) {
+        if (isNaN(e.target.value)) return false;
+
+        setOtp([...otp.map((data, i) => (i === index ? e.target.value : data))]);
+
+        // Auto-focus next input field
+        if (e.target.value && e.target.nextSibling) {
+            e.target.nextSibling.focus();
+        }
+
+        // If all fields are filled, auto-submit
+        const allFilled = otp.every((digit, i) =>
+            i === index ? e.target.value !== "" : digit !== ""
+        );
+
+        if (allFilled && index === 5 && e.target.value !== "") {
+            // Wait a moment before auto-submitting
+            setTimeout(() => {
+                handleValidation({ preventDefault: () => {} });
+            }, 500);
+        }
+    }
+
+    // Handle backspace key to go to previous input
+    function handleKeyDown(e, index) {
+        if (e.key === 'Backspace' && !e.target.value && e.target.previousSibling) {
+            e.preventDefault();
+            e.target.previousSibling.focus();
+        }
+    }
+
+    // Resend OTP function
+    async function resendOTP() {
+        if (timeLeft > 0) return; // Prevent resend if countdown is active
+
+        if (!email) {
+            errorNotify("Email is required to resend OTP");
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const response = await Axios.post("http://localhost:8000/accountsapp/resend-otp/", {
+                email: email,
+                verification_type: verificationType
+            });
+
+            if (response.data.success) {
+                notify("OTP has been resent to your email");
+                setTimeLeft(60); // Reset countdown timer
+            } else {
+                errorNotify(response.data.message || "Failed to resend OTP");
+            }
+        } catch (error) {
+            console.error("Resend OTP error:", error);
+            errorNotify(error.response?.data?.message || "An error occurred while resending OTP");
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    async function handleValidation(e) {
+        e.preventDefault();
+        const otpCode = otp.join("");
+
+        if (otpCode.length !== 6) {
+            errorNotify("Please enter all 6 digits of the OTP");
+            return;
+        }
+
+        if (!email) {
+            errorNotify("Email is required for verification");
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const response = await Axios.post("http://localhost:8000/accountsapp/verify-otp/", {
+                email: email,
+                otp: otpCode,
+                verification_type: verificationType
+            });
+
+            if (response.data.success) {
+                notify(response.data.message || "OTP verification successful");
+
+                // Handle different verification types
+                switch (verificationType) {
+                    case "signup":
+                    case "login":
+                        // Store token if provided
+                        if (response.data.access_token) {
+                            localStorage.setItem("access_token", response.data.access_token);
+                            console.log("Access token stored successfully");
+                        } else if (response.data.token) {
+                            localStorage.setItem("access_token", response.data.token);
+                            console.log("Token stored as access_token");
+                        } else {
+                            console.warn("No token received from server");
+                        }
+
+                        if (response.data.user_id) {
+                            localStorage.setItem("user_id", response.data.user_id);
+                            console.log("User ID stored successfully:", response.data.user_id);
+                        }
+
+                        if (response.data.role) {
+                            localStorage.setItem("user_role", response.data.role);
+                            console.log("User role stored successfully:", response.data.role);
+                        }
+
+                        // Redirect to dashboard after successful verification
+                        notify(`${verificationType === "signup" ? "Signup" : "Login"} successful! Redirecting to dashboard...`);
+                        setTimeout(() => {
+                            navigate("/dashboard");
+                        }, 1500);
+                        break;
+
+                    case "password_reset":
+                        // Redirect to create new password page
+                        notify("OTP verified successfully. You can now reset your password.");
+                        setTimeout(() => {
+                            navigate("/create-password", {
+                                state: {
+                                    email: email,
+                                    reset_token: response.data.reset_token
+                                }
+                            });
+                        }, 1500);
+                        break;
+
+                    default:
+                        // Generic success, redirect to home
+                        notify("Verification successful! Redirecting...");
+                        setTimeout(() => {
+                            navigate("/");
+                        }, 1500);
+                }
+            } else {
+                errorNotify(response.data.message || "OTP verification failed");
+            }
+        } catch (error) {
+            console.error("OTP verification error:", error);
+            const errorMessage = error.response?.data?.message ||
+                                error.response?.data?.error ||
+                                "An error occurred during verification";
+            errorNotify(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+
+    return (
+        <div className="row m-0 px-2 otp_wrapper animate__animated animate__fadeIn">
+            <div className="col-12 col-md-4 main-card animate__animated animate__zoomIn">
+                <div className="col-12 bg-card-2"></div>
+                <div className="col-12 bg-card-3"></div>
+                <div className="bg-card">
+                    <div>
+                        <ToastContainer />
+                    </div>
+                    <div className="row">
+                        <div className="col-3">
+                            <button
+                                onClick={() => navigate(-1)}
+                                className='text-dark btn btn-link p-0'
+                            >
+                                <FontAwesomeIcon icon={faChevronLeft} />
+                            </button>
+                        </div>
+                        <div className="col-6 text-center">
+                            <img src={brandLogo} className="brand-logo ms-2" alt="Paeshift logo" />
+                        </div>
+                        <div className="col-3"></div>
+                    </div>
+                    <div className="row content">
+                        <div className="col-12 px-0">
+                            <div className="title">
+                                <h3>OTP verification</h3>
+                                <p>
+                                    {verificationType === "signup" && "Verify your account by entering the OTP sent to your email."}
+                                    {verificationType === "login" && "Enter the OTP sent to your email to complete login."}
+                                    {verificationType === "password_reset" && "Enter the OTP sent to your email to reset your password."}
+                                    {!["signup", "login", "password_reset"].includes(verificationType) && "Enter the OTP sent to your email."}
+                                </p>
+                                {email && <p className="text-primary">{email}</p>}
+                            </div>
+                            <form className="otp_form" onSubmit={handleValidation}>
+
+                                <div className="mb-2 otp_area">
+                                    {
+                                        otp.map((data, i) => {
+                                            return (
+                                                <input
+                                                    type="text"
+                                                    maxLength={1}
+                                                    className="form-control"
+                                                    name="otp"
+                                                    value={data}
+                                                    onChange={(e) => handleInput(e, i)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Backspace' && !e.target.value && e.target.previousSibling) {
+                                                            e.preventDefault();
+                                                            e.target.previousSibling.focus();
+                                                        }
+                                                    }}
+                                                    key={i}
+                                                    disabled={isLoading}
+                                                />
+                                            )
+                                        })
+                                    }
+                                </div>
+                                <p className="mt-3">Didn’t get Code? <a href="#" > Resend OTP in 0:0</a></p>
+
+                                <button type="submit" name='submit' className="btn primary-btn w-100 mt-2">Verify Code</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default VerificationScreen

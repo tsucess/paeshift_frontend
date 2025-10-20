@@ -1,0 +1,23 @@
+.star-ratings .rating-star {
+    cursor: pointer;
+    transition: color 0.2s ease;
+    pointer-events: auto;
+    font-size: 1.2rem;
+}
+
+.real-rating {
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 2px;
+    pointer-events: auto;
+    position: relative;
+    z-index: 10;
+}
+
+.real-rating:hover .rating-star {
+    transform: scale(1.1);
+}
+
+.star_input {
+    display: none;
+}

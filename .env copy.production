@@ -1,0 +1,13 @@
+# Production Environment Configuration for Paeshift Frontend
+
+# API Base URL - Production AWS Elastic Beanstalk us-east-1 (same region as database)
+# VITE_API_BASE_URL=http://payshift-production.eba-qadiqdti.us-east-1.elasticbeanstalk.com
+VITE_API_BASE_URL=http://localhost:8000
+
+# App Configuration
+VITE_APP_NAME=Paeshift
+VITE_APP_VERSION=1.0.0
+VITE_APP_ENV=production
+
+# Build Configuration
+NODE_ENV=production

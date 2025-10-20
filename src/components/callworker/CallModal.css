@@ -1,0 +1,19 @@
+.call-modal-content {
+  background-color: #5b009f;
+  border-radius: 2rem;
+  padding: 1.5rem;
+}
+
+.icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.call-cancel-btn {
+    padding: 0.8rem 1.1rem;
+}
