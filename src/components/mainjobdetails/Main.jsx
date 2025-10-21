@@ -30,7 +30,7 @@ import AcceptJobConfirmmodal from "../acceptjobconfirmmodal/AcceptJobConfirmmoda
 import CancelshiftConfirmmodal from "../cancelshiftconfirmmodal/CancelshiftConfirmmodal";
 import CancelshiftSuccessmodal from "../cancelshiftsuccessmodal/CancelshiftSuccessmodal";
 import EndshiftConfirmmodal from "../endshiftconfirmmodal/EndshiftConfirmmodal";
-import EndshiftSuccessmodal from "../endshiftsuccessmodal/endshiftSuccessmodal";
+import EndshiftSuccessmodal from "../endshiftsuccessmodal/EndshiftSuccessmodal";
 import StartshiftConfirmmodal from "../startshiftconfirmmodal/StartshiftConfirmmodal";
 import StartshiftSuccessmodal from "../startshiftsuccessmodal/StartshiftSuccessmodal";
 import FeedbackSuccessmodal from "../feedbacksuccessmodal/FeedbackSuccessmodal";
