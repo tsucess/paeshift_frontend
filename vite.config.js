@@ -33,6 +33,12 @@ export default defineConfig(({ mode }) => {
       cors: true,
       open: true, // Auto-open browser
       historyApiFallback: true, // Enable client-side routing fallback
+      allowedHosts: [
+        'localhost',
+        '127.0.0.1',
+        'paeshift-frontend.onrender.com',
+        '*.onrender.com',
+      ],
       proxy: {
         // Proxy API requests to Django backend
         '/api': {
