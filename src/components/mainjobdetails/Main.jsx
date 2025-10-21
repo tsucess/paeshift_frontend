@@ -42,7 +42,7 @@ import CountdownTimer from "../../auth/CountdownTimer";
 import { ToastContainer } from 'react-toastify';
 import { showSuccessToast, showErrorToast, toastContainerProps } from '../../utils/toastConfig';
 
-import Map from "./map";
+import Map from "./Map";
 import CallModal from "../callworker/CallModal";
 import EmpFeedbackmodal from "../employerfeedbackmodal/EmpFeedbackmodal";
 import { API_BASE_URL, NOTIFY } from "../../config";
