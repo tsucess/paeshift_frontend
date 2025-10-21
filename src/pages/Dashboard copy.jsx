@@ -1,6 +1,5 @@
-c:\Users\HP\Desktop\Code25\paeshift-frontend - Copy\paeshift-frontend\src\pages\AppSignup.jsximport React, 
-{ useEffect } from "react";
-import Sidebar from "../components/sidebar/SideBar";
+import React, { useEffect } from "react";
+import Sidebar from "../components/sidebar/Sidebar";
 import Main from "../components/main/Main";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";

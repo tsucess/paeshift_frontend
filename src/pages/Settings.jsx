@@ -1,5 +1,5 @@
 import React from 'react'
-import Sidebar from "../components/sidebar/SideBar";
+import Sidebar from "../components/sidebar/Sidebar";
 import Main from "../components/settings/Main";
 import { useNavigate } from "react-router-dom";
 const Settings = () => {
