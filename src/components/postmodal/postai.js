@@ -66,7 +66,8 @@ const Postmodal = () => {
   };
   const { isLoaded: mapsLoaded } = useJsApiLoader({
     id: "google-maps-script",
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    // googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries: ['places'],
     onLoad: () => {
       setIsLoaded(true);
@@ -89,7 +90,7 @@ const Postmodal = () => {
   useEffect(() => {
     const fetchIndustries = async () => {
       try {
-        const response = await Axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/jobs/job-industries/`);
+        const response = await Axios.get(`${import.meta.env.VITE_API_BASE_URL}/jobs/job-industries/`);
         setIndustries(response.data);
       } catch (error) {
         console.error("Error fetching industries:", error);
@@ -98,7 +99,7 @@ const Postmodal = () => {
 
     const fetchSubcategories = async () => {
       try {
-        const response = await Axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/jobs/job-subcategories/`);
+        const response = await Axios.get(`${import.meta.env.VITE_API_BASE_URL}/jobs/job-subcategories/`);
         setSubcategories(response.data);
       } catch (error) {
         console.error("Error fetching subcategories:", error);
@@ -183,7 +184,7 @@ const Postmodal = () => {
 
                 console.log("Job data:", jobData);
                 try {
-                  const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/jobs/create-job`, jobData);
+                  const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL}/jobs/create-job`, jobData);
                   console.log(response.data);
                   // const modal = new bootstrap.Modal('#postJobSuccessmodal');
                   // modal.show(); // Show success modal

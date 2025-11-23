@@ -12,6 +12,8 @@ export const getApiUrl = (endpoint = '') => {
   return `${baseUrl}${cleanEndpoint}`;
 };
 
+
+
 // API Endpoints - Build complete URLs
 export const API_ENDPOINTS = {
   // Authentication

@@ -343,7 +343,8 @@ const Map = () => {
       {jobDetails.latitude && jobDetails.longitude && userLocation.lat && userLocation.lng ? (
         <div className="col-12 m-0 p-0" style={{ height: '500px', width: '100%', position: 'relative' }}>
           <GoogleMapReact
-            bootstrapURLKeys={{ key: "AIzaSyCiCDANDMScIcsm-d0QMDaAXFS8M-0GdLU" }}
+            // bootstrapURLKeys={{ key: "AIzaSyCiCDANDMScIcsm-d0QMDaAXFS8M-0GdLU" }}
+            bootstrapURLKeys={{ key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY }}
             center={getMapCenter()}
             defaultZoom={8}
             yesIWantToUseGoogleMapApiInternals
