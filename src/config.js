@@ -3,7 +3,7 @@
 
 // For Vite projects, use import.meta.env
 // Updated 2025-07-31: Configure for local development with PostgreSQL primary and SQLite fallback
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Helper function to get API URL - use this in all components
 export const getApiUrl = (endpoint = '') => {

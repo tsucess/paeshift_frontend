@@ -396,7 +396,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
                     <span className="title">
                       <h3>{item.title}</h3>
                     </span>
-                    <h4>{item.date}. {item.time}</h4>
+                    <h4>{item.start_date}. {item.time}</h4>
                     <span className="address text-truncate">{item.location}</span>
                     <div className="price">
                       <span>

@@ -6,7 +6,7 @@ import { resolve } from 'path'
 export default defineConfig(({ mode }) => {
   // Load environment variables
   const env = loadEnv(mode, process.cwd(), '')
-  const API_BASE_URL = env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+  const API_BASE_URL = env.VITE_API_BASE_URL 
 
   return {
     plugins: [react()],

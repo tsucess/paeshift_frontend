@@ -95,7 +95,6 @@ const Signup = () => {
                     console.log(userdata);
 
                     try {
-                      // Direct signup - let backend handle email uniqueness validation
                       const response = await apiService.signup(userdata);
                       console.log("Signup response:", response.data);
 
@@ -136,12 +135,17 @@ const Signup = () => {
                     } catch (error) {
                       console.error("Signup error:", error);
 
-                      // Extract error message from different possible response formats
+                      // Friendly error messaging (handle duplicate email / 409)
                       let errorMessage = "Network error occurred";
-                      if (error.response?.data?.error) {
-                        errorMessage = error.response.data.error;
-                      } else if (error.response?.data?.message) {
-                        errorMessage = error.response.data.message;
+                      const resp = error?.response;
+
+                      if (resp) {
+                        if (resp.status === 409) {
+                          // Backend uses 409 for conflict (email exists)
+                          errorMessage = resp.data?.error || resp.data?.message || "Email already registered";
+                        } else {
+                          errorMessage = resp.data?.error || resp.data?.message || resp.statusText || error.message;
+                        }
                       } else if (error.message) {
                         errorMessage = error.message;
                       }

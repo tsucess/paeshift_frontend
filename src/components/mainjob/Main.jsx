@@ -571,7 +571,7 @@ const Main = () => {
                       </div>
                       <div className="row">
                         <div className="col-4 pe-0"><p>Date:</p></div>
-                        <div className="col-8"><h4>{profile.role === 'applicant' ? item.date_human : formatDate(item.date)}</h4></div>
+                        <div className="col-8"><h4>{profile.role === 'applicant' ? item.date_human : formatDate(item.start_date)}</h4></div>
                       </div>
                       <div className="row">
                         <div className="col-6 pe-0"><p>Time:</p></div>

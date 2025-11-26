@@ -60,7 +60,7 @@ const ForgotPassword = () => {
             submitButton.disabled = true;
 
             // Send password reset request
-            const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/accountsapp/request-password-reset`, {
+            const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL }/accountsapp/request-password-reset`, {
                 email: values.email
             });
 

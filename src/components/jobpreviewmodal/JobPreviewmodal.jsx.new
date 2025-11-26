@@ -9,7 +9,7 @@ const JobPreviewmodal = ({ itemData, handleDelete }) => {
 
     // Fetch user profile for payment
     useEffect(() => {
-        Axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/accounts/whoami`)
+        Axios.get(`${import.meta.env.VITE_API_BASE_URL }/accounts/whoami`)
             .then((response) => {
                 setProfile(response.data);
             })

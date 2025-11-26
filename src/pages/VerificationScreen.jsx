@@ -125,7 +125,7 @@ const VerificationScreen = () => {
         setIsLoading(true);
 
         try {
-            const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/accountsapp/otp/request`, {
+            const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL }/accountsapp/otp/request`, {
                 email: email,
                 type: verificationType
             });
@@ -173,7 +173,7 @@ const VerificationScreen = () => {
 
             // For registration, call verify-registration endpoint directly (handles both OTP verification and activation)
             if (verificationType === "registration" || verificationType === "signup") {
-                const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/accountsapp/verify-registration`, {
+                const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL }/accountsapp/verify-registration`, {
                     email: email,
                     code: otpCode,
                     type: "registration"
@@ -192,7 +192,7 @@ const VerificationScreen = () => {
                 }
             } else {
                 // For other types (login, password_reset), use the regular OTP verify endpoint
-                const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/accountsapp/otp/verify`, {
+                const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL }/accountsapp/otp/verify`, {
                     email: email,
                     code: otpCode,
                     type: verificationType

@@ -464,7 +464,7 @@ const Main = () => {
                   <span className="title">
                     <h3 className="text-truncate">{item.title}</h3>
                   </span>
-                  <h4>{formatDate(item.date)}. {item.start_time}</h4>
+                  <h4>{formatDate(item.start_date)}. {item.start_time}</h4>
                   <span className="address text-truncate"><FontAwesomeIcon icon={faLocationDot} /> {item.location}</span>
                   <div className="price">
                     <span>

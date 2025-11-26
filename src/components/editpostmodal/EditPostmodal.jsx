@@ -20,7 +20,8 @@ const Schema = Yup.object().shape({
   noOfApplicants: Yup.number().required("Required"),
   jobType: Yup.string().required("Required"),
   shiftType: Yup.string().required("Required"),
-  jobDate: Yup.string().required("Required"),
+  jobStartDate: Yup.string().required("Required"),
+  jobEndDate: Yup.string().required("Required"),
   startTime: Yup.string().required("Required"),
   endTime: Yup.string().required("Required"),
 });
@@ -202,7 +203,8 @@ const EditPostmodal = ({ formData, refreshJobs, selectedJob }) => {
                   noOfApplicants: formData.applicants_needed,
                   jobType: formData.job_type,
                   shiftType: formData.shift_type,
-                  jobDate: formData.date,
+                  jobStartDate: formData.date,
+                  jobEndDate: formData.date,
                   startTime: formData.start_time_str,
                   endTime: formData.end_time_str,
                 }}
@@ -240,7 +242,8 @@ const EditPostmodal = ({ formData, refreshJobs, selectedJob }) => {
                     applicants_needed: applicants, // Ensure at least 1 applicant
                     job_type: values.jobType || formData.job_type,
                     shift_type: values.shiftType || formData.shift_type,
-                    date: values.jobDate || formData.date, // Expected as 'YYYY-MM-DD'
+                    start_date: values.jobStartDate || formData.start_date, // Expected as 'YYYY-MM-DD'
+                    end_date: values.jobEndDate || formData.end_date, // Expected as 'YYYY-MM-DD'
                     start_time: values.startTime || formData.start_time_str, // Expected as 'HH:MM'
                     end_time: values.endTime || formData.end_time_str, // Expected as 'HH:MM'
                     pay_later: false,
@@ -255,7 +258,7 @@ const EditPostmodal = ({ formData, refreshJobs, selectedJob }) => {
                       resetForm();
                     }
                   } catch (error) {
-                   console.error("Job update error:", error);
+                    console.error("Job update error:", error);
                   } finally {
                     setSubmitting(false);
                   }
@@ -379,7 +382,7 @@ const EditPostmodal = ({ formData, refreshJobs, selectedJob }) => {
                             name="noOfApplicants"
                             className="form-control"
 
-                            placeholder= {formData.applicants_needed}
+                            placeholder={formData.applicants_needed}
                           />
                           {touched.noOfApplicants && errors.noOfApplicants && (
                             <div className="errors">{errors.noOfApplicants}</div>
@@ -406,7 +409,7 @@ const EditPostmodal = ({ formData, refreshJobs, selectedJob }) => {
                             id="jobType"
                             className="form-control"
 
-                            placeholder = {formData.job_type}
+                            placeholder={formData.job_type}
                           >
                             <option value="">Select job type</option>
                             <option value="single_day">A day job</option>
@@ -425,7 +428,7 @@ const EditPostmodal = ({ formData, refreshJobs, selectedJob }) => {
                             name="shiftType"
                             id="shiftType"
                             className="form-control"
-                            placeholder = {formData.shift_type}
+                            placeholder={formData.shift_type}
 
                           >
                             <option value="">Select shift type</option>
@@ -438,21 +441,37 @@ const EditPostmodal = ({ formData, refreshJobs, selectedJob }) => {
                           )}
                         </div>
                       </div>
-                      <div className="col-12 mb-2">
-                        <label htmlFor="jobDate" className="form-label mb-0">
-                          Job Date
-                        </label>
-                        <Field
-                          type="date"
-                          name="jobDate"
-                          id="jobDate"
-                          className="form-control"
-
-                          // placeholder={formData.date}
-                        />
-                        {touched.jobDate && errors.jobDate && (
-                          <div className="errors">{errors.jobDate}</div>
-                        )}
+                      <div className="row m-0 mb-2 p-0">
+                        <div className="col-6">
+                          <label htmlFor="jobStartDate" className="form-label mb-0">
+                            Job Start Date
+                          </label>
+                          <Field
+                            type="date"
+                            name="jobStartDate"
+                            id="jobStartDate"
+                            className="form-control"
+                            min={new Date().toISOString().split('T')[0]} // This sets min to today
+                          />
+                          {touched.jobStartDate && errors.jobStartDate && (
+                            <div className="errors">{errors.jobStartDate}</div>
+                          )}
+                        </div>
+                        <div className="col-6">
+                          <label htmlFor="jobEndDate" className="form-label mb-0">
+                            Job End Date
+                          </label>
+                          <Field
+                            type="date"
+                            name="jobEndDate"
+                            id="jobEndDate"
+                            className="form-control"
+                            min={new Date().toISOString().split('T')[0]} // This sets min to today
+                          />
+                          {touched.jobEndDate && errors.jobEndDate && (
+                            <div className="errors">{errors.jobEndDate}</div>
+                          )}
+                        </div>
                       </div>
                       <div className="row m-0 mb-2 p-0">
                         <div className="col-6">
@@ -464,7 +483,7 @@ const EditPostmodal = ({ formData, refreshJobs, selectedJob }) => {
                             name="startTime"
                             id="startTime"
                             className="form-control"
-                            // value={formData.start_time_str}
+                          // value={formData.start_time_str}
 
                           />
                           {touched.startTime && errors.startTime && (
@@ -481,7 +500,7 @@ const EditPostmodal = ({ formData, refreshJobs, selectedJob }) => {
                             id="endTime"
                             className="form-control"
                             value={formData.end_time_str}
-                            // placeholder={formData.end_time_str}
+                          // placeholder={formData.end_time_str}
                           />
                           {touched.endTime && errors.endTime && (
                             <div className="errors">{errors.endTime}</div>

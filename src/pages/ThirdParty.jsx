@@ -89,7 +89,7 @@ const ThirdParty = () => {
                 console.log(userdata);
 
                 // let baseURL = "http://127.0.0.1:8000/jobs/signup";
-                let getUsersURL = `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/jobs/all-users`;
+                let getUsersURL = `${import.meta.env.VITE_API_BASE_URL }/jobs/all-users`;
                 try {
                     let allUser = await Axios.get(`${getUsersURL}`);
                     // console.log(allUser.data.users); 
@@ -105,7 +105,7 @@ const ThirdParty = () => {
 
                     // use the typed email to check if the email already exist
                     if (!isUnique) {
-                        let result = await Axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}/accounts/signup`, userdata);
+                        let result = await Axios.post(`${import.meta.env.VITE_API_BASE_URL }/accounts/signup`, userdata);
                         result = result.data.message;
 
 

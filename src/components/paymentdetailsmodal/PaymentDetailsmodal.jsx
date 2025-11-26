@@ -11,7 +11,7 @@ const PaymentDetailsmodal = ({ payment, jobId }) => {
 
     useEffect(() => {
         if (jobId) {
-            Axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/jobs/job/${jobId.id}/payment-details`)
+            Axios.get(`${import.meta.env.VITE_API_BASE_URL}/jobs/job/${jobId.id}/payment-details`)
                 .then((response) => {
                     setPaymentDetails(response.data);
                 })

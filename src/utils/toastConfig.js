@@ -77,7 +77,7 @@ export const showLongToast = (message, type = 'info') => {
 // ToastContainer default props for consistent rendering
 export const toastContainerProps = {
   position: "top-center",
-  autoClose: 4000,
+  autoClose: 1000,
   hideProgressBar: false,
   newestOnTop: false,
   closeOnClick: true,

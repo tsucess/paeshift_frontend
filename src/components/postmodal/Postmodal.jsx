@@ -22,7 +22,8 @@ const Schema = Yup.object().shape({
   noOfApplicants: Yup.number().min(1, "Must be at least 1").required("Required"),
   jobType: Yup.string().required("Required"),
   shiftType: Yup.string().required("Required"),
-  jobDate: Yup.string().required("Required"),
+  jobStartDate: Yup.string().required("Required"),
+  jobEndDate: Yup.string().required("Required"),
   startTime: Yup.string().required("Required"),
   endTime: Yup.string().required("Required"),
 });
@@ -178,13 +179,14 @@ const Postmodal = ({ setOutJobData }) => {
                 noOfApplicants: "",
                 jobType: "",
                 shiftType: "",
-                jobDate: "",
+                jobStartDate: "",
+                jobEndDate: "",
                 startTime: "",
                 endTime: "",
               }}
               validationSchema={Schema}
               onSubmit={async (values, { setSubmitting, resetForm }) => {
-                
+
 
                 // Calculate total amount: jobRate * duration (in hours) * applicants_needed
                 const jobRate = parseFloat(values.jobRate) || 0;
@@ -211,7 +213,8 @@ const Postmodal = ({ setOutJobData }) => {
                   applicants_needed: applicants, // Ensure at least 1 applicant
                   job_type: values.jobType,
                   shift_type: values.shiftType,
-                  date: values.jobDate, // Expected as 'YYYY-MM-DD'
+                  start_date: values.jobStartDate, // Expected as 'YYYY-MM-DD'
+                  end_date: values.jobEndDate, // Expected as 'YYYY-MM-DD'
                   start_time: values.startTime, // Expected as 'HH:MM'
                   end_time: values.endTime, // Expected as 'HH:MM'
                   duration: values.jobDuration || "--",
@@ -458,20 +461,37 @@ const Postmodal = ({ setOutJobData }) => {
                           )}
                         </div>
                       </div>
-                      <div className="col-12 mb-2">
-                        <label htmlFor="jobDate" className="form-label mb-0">
-                          Job Date
-                        </label>
-                        <Field
-                          type="date"
-                          name="jobDate"
-                          id="jobDate"
-                          className="form-control"
-                          min={new Date().toISOString().split('T')[0]} // This sets min to today
-                        />
-                        {touched.jobDate && errors.jobDate && (
-                          <div className="errors">{errors.jobDate}</div>
-                        )}
+                      <div className="row m-0 mb-2 p-0">
+                        <div className="col-6">
+                          <label htmlFor="jobStartDate" className="form-label mb-0">
+                            Job Start Date
+                          </label>
+                          <Field
+                            type="date"
+                            name="jobStartDate"
+                            id="jobStartDate"
+                            className="form-control"
+                            min={new Date().toISOString().split('T')[0]} // This sets min to today
+                          />
+                          {touched.jobStartDate && errors.jobStartDate && (
+                            <div className="errors">{errors.jobStartDate}</div>
+                          )}
+                        </div>
+                        <div className="col-6">
+                          <label htmlFor="jobEndDate" className="form-label mb-0">
+                            Job End Date
+                          </label>
+                          <Field
+                            type="date"
+                            name="jobEndDate"
+                            id="jobEndDate"
+                            className="form-control"
+                            min={new Date().toISOString().split('T')[0]} // This sets min to today
+                          />
+                          {touched.jobEndDate && errors.jobEndDate && (
+                            <div className="errors">{errors.jobEndDate}</div>
+                          )}
+                        </div>
                       </div>
                       <div className="row m-0 mb-2 p-0">
                         <div className="col-6">
@@ -480,7 +500,7 @@ const Postmodal = ({ setOutJobData }) => {
                           </label>
                           <Field
                             type="time"
-                            name="startTime"
+                            name="startTime"  
                             id="startTime"
                             className="form-control"
                           />
