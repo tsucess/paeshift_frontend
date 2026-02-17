@@ -7,6 +7,7 @@ import { faCheck, faChevronLeft, faCircle, faEye, faEyeSlash } from "@fortawesom
 import { ToastContainer } from 'react-toastify';
 import { showErrorToast, toastContainerProps } from '../utils/toastConfig';
 import Axios from "axios";
+import logger from "../utils/logger";
 
 
 const CreatePassword = () => {
@@ -61,7 +62,7 @@ const CreatePassword = () => {
 
 
        if (userdata.password === "") {
-            console.log(userdata.password);
+            logger.info(userdata.password);
             errorNotify("Password is Required");
         }
         else if (!password_pattern.test(userdata.password)) {
@@ -71,7 +72,7 @@ const CreatePassword = () => {
         }
         else {
             notify("Password changed successfull");
-            console.log(userdata);
+            logger.info(userdata);
 
             // Endpoint needs to be updated
             // let baseURL = "http://localhost:8000/Users";
@@ -88,12 +89,12 @@ const CreatePassword = () => {
             //       }, 1500);
             //     })
             //     .catch((error) => {
-            //       console.error(error);
+            //       logger.error(error);
             //     });
-           
+
             // // if unique email allow to signup else dont
             // } catch (error) {
-            //   console.error(error);
+            //   logger.error(error);
             // }
 
         }

@@ -106,9 +106,6 @@ const WithdrawModal = ({ accountDetails = {} }) => {
 
   }, [])
 
-
-  // console.log(accountDetails);
-
   const handleWithdraw = () => {
     // Validate account details exist
     if (!accountDetails || !accountDetails.bank_name || !accountDetails.account_number) {

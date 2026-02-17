@@ -44,31 +44,6 @@ const Main = () => {
 
 
 
-  // useEffect(() => {
-  //   import { getApiUrl } from "../../config.js";
-  //
-  //   Axios.get(getApiUrl("/Products"))
-  //     .then((response) => {
-  //       setProduct(response.data);
-  //     })
-  //     .catch((error) => console.error(error));
-
-  //   Axios.get(getApiUrl("/Admin"))
-  //     .then((response) => {
-  //       setAdmins(response.data);
-  //     })
-  //     .catch((error) => console.error(error));
-
-  //   Axios.get(getApiUrl("/Users"))
-  //     .then((response) => {
-  //       setUsers(response.data);
-  //       })
-  //       .catch((error) => console.error(error));
-  // }, []);
-
-  // console.log(user.data)
-
-
   return (
     <main className="col-12 col-md-12 col-lg-9 col-xl-10 ms-sm-auto  px-md-4">
       <div className="d-flex justify-content-between align-items-center flex-wrap flex-md-nowrap align-items-center pb-2">

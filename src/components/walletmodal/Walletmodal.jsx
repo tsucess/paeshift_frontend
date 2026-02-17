@@ -53,7 +53,6 @@ const Walletmodal = ({ accountDetails }) => {
   useEffect(() => {
     // GET CURRENT USER PROFILE
     getCurrentUser(setProfile);
-    console.log(profile)
 
     Axios.get(
       `${API_BASE_URL}/payment/users/${currentUserId}/wallet/transactions`

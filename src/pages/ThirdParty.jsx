@@ -55,7 +55,6 @@ const ThirdParty = () => {
 
 
     const login = useGoogleLogin({
-        // onSuccess: tokenResponse => console.log(tokenResponse),
         onSuccess: async (tokenResponse) => {
 
             let URL = "https://www.googleapis.com/oauth2/v3/userinfo";
@@ -68,7 +67,6 @@ const ThirdParty = () => {
                         },
                     }
                 );
-                console.log(res.data);
                let values = res.data;
 
                 // same shape as initial values
@@ -86,13 +84,10 @@ const ThirdParty = () => {
                     password: values.sub
                 };
 
-                console.log(userdata);
-
                 // let baseURL = "http://127.0.0.1:8000/jobs/signup";
                 let getUsersURL = `${import.meta.env.VITE_API_BASE_URL }/jobs/all-users`;
                 try {
                     let allUser = await Axios.get(`${getUsersURL}`);
-                    // console.log(allUser.data.users); 
                     allUser = allUser.data.users;
 
 
@@ -145,8 +140,7 @@ const ThirdParty = () => {
                 <div className="bg-card">
                     <div className="row">
                         <div className="col-3">
-                            <Link to="/welcomeclear
-                            " className='text-dark'>
+                            <Link to="/welcome" className='text-dark'>
                                 <FontAwesomeIcon icon={faChevronLeft} />
                             </Link>
                         </div>
@@ -172,9 +166,6 @@ const ThirdParty = () => {
                                     onResolve={({ provider, data }) => {
                                         setProvider(provider)
                                         setProfile(data)
-                                        console.log(data)
-                                        console.log(provider)
-
                                     }}
                                     onReject={(err) => {
                                         console.log(err)

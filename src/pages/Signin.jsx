@@ -17,6 +17,8 @@ import withReactContent from 'sweetalert2-react-content';
 import axios from "axios";
 import "animate.css";
 import { useGoogleLogin } from '@react-oauth/google';
+import { getApiUrl } from "../config";
+import logger from "../utils/logger";
 
 // Import social media icons
 import igoogle from "../assets/images/icon-google.png";
@@ -26,17 +28,14 @@ import iapple from "../assets/images/icon-apple.png";
 // SweetAlert2 setup
 // const AppSwal = withReactContent(Swal);
 
-// API_BASE_URL should be defined in your environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-// Centralized API endpoints
+// Centralized API endpoints using getApiUrl helper to handle trailing slashes
 export const API_ENDPOINTS = {
-  SOCIAL_AUTH: `${API_BASE_URL}/accountsapp/social/google`,
-  LOGIN: `${API_BASE_URL}/accountsapp/login-simple`,
-  ALL_USERS: `${API_BASE_URL}/jobs/all-users`,
-  CONNECT_SOCIAL: `${API_BASE_URL}/accountsapp/social/connect-social`,
-  CHECK_SOCIAL_ACCOUNT: `${API_BASE_URL}/accountsapp/social/check-social-account`,
-  DIRECT_SOCIAL_LOGIN: `${API_BASE_URL}/accountsapp/social/direct-social-login`
+  SOCIAL_AUTH: getApiUrl('accountsapp/social/google'),
+  LOGIN: getApiUrl('accountsapp/login-simple'),
+  ALL_USERS: getApiUrl('jobs/all-users'),
+  CONNECT_SOCIAL: getApiUrl('accountsapp/social/connect-social'),
+  CHECK_SOCIAL_ACCOUNT: getApiUrl('accountsapp/social/check-social-account'),
+  DIRECT_SOCIAL_LOGIN: getApiUrl('accountsapp/social/direct-social-login')
 };
 
 // REDIRECT URL for social login components
@@ -121,7 +120,7 @@ const Signin = () => {
 
     // If we have a role from the signup page, use it
     if (googleSignupRole) {
-      console.log("Using role from signup page:", googleSignupRole);
+      logger.info("Using role from signup page:", googleSignupRole);
       // Store it in localStorage so it's available for the Google auth flow
       localStorage.setItem("user_role", googleSignupRole);
       // Clear it after using
@@ -155,7 +154,7 @@ const Signin = () => {
   const handleSuccessfulLogin = (userData, googleEmail) => {
     // Add null check to prevent "Cannot read properties of undefined" error
     if (!userData) {
-      console.error("userData is undefined in handleSuccessfulLogin");
+      logger.error("userData is undefined in handleSuccessfulLogin");
       Swal.fire({
         title: "Login Error",
         text: "Something went wrong during login. Please try again.",
@@ -196,7 +195,7 @@ const Signin = () => {
   const handleGoogleAuth = async (tokenResponse) => {
     setLoading(true);
     try {
-      console.log("Google token response:", tokenResponse);
+      logger.info("Google token response:", tokenResponse);
 
       // 1. Get user info from Google
       let userInfoResponse;
@@ -209,9 +208,9 @@ const Signin = () => {
             },
           }
         );
-        console.log("Google user info:", userInfoResponse.data);
+        logger.info("Google user info:", userInfoResponse.data);
       } catch (googleError) {
-        console.error("Error fetching Google user info:", googleError);
+        logger.error("Error fetching Google user info:", googleError);
         Swal.fire({
           title: "Authentication Error",
           text: "Could not fetch your Google profile information. Please try again.",
@@ -227,7 +226,7 @@ const Signin = () => {
       const lastName = userInfoResponse?.data?.family_name || '';
       const fullName = userInfoResponse?.data?.name || `${firstName} ${lastName}`.trim();
 
-      console.log("Google user info:", {
+      logger.info("Google user info:", {
         email,
         firstName,
         lastName,
@@ -256,20 +255,20 @@ const Signin = () => {
 
       // 2. Check if the user exists in the system first
       try {
-        console.log("Checking if user exists:", email);
+        logger.info("Checking if user exists:", email);
         const checkUserResponse = await axios.get(API_ENDPOINTS.ALL_USERS);
         const usersArray = checkUserResponse.data.users || checkUserResponse.data;
         const userExists = usersArray.some(user => user.email === email);
 
         if (userExists) {
-          console.log("User exists in the system, proceeding with authentication");
+          logger.info("User exists in the system, proceeding with authentication");
 
           // Find the user object to get their role and other details
           const userObject = usersArray.find(user => user.email === email);
 
           // Add a check to ensure userObject is defined
           if (!userObject) {
-            console.error("User exists but userObject is undefined");
+            logger.error("User exists but userObject is undefined");
             Swal.fire({
               title: "Authentication Error",
               text: "Could not retrieve your user information. Please try again or use password login.",
@@ -281,7 +280,7 @@ const Signin = () => {
 
           // Try direct login with the email from Google
           try {
-            console.log("Attempting direct login with Google account");
+            logger.info("Attempting direct login with Google account");
 
             const directLoginPayload = {
               email: email,
@@ -298,19 +297,19 @@ const Signin = () => {
               );
 
               if (directLoginResponse.data.message === "success") {
-                console.log("Direct login successful");
+                logger.info("Direct login successful");
                 handleSuccessfulLogin(directLoginResponse.data, email);
                 return;
               }
             } catch (directLoginError) {
-              console.log("Direct login failed:", directLoginError.response?.status, directLoginError.response?.data?.error || directLoginError.message);
+              logger.info("Direct login failed:", directLoginError.response?.status, directLoginError.response?.data?.error || directLoginError.message);
 
               // If endpoint not found or there's a server error, try the regular social auth endpoint
               if (directLoginError.response?.status === 404 ||
                 directLoginError.response?.status === 422 ||
                 directLoginError.response?.status === 500) {
-                console.log("Backend error:", directLoginError.response?.status, directLoginError.response?.data);
-                console.log("Falling back to regular social auth...");
+                logger.info("Backend error:", directLoginError.response?.status, directLoginError.response?.data);
+                logger.info("Falling back to regular social auth...");
 
                 // Try regular social auth without showing the dialog
                 try {
@@ -334,7 +333,7 @@ const Signin = () => {
                     return;
                   }
                 } catch (socialAuthError) {
-                  console.log("Social auth also failed:", socialAuthError.response?.status, socialAuthError.response?.data?.error || socialAuthError.message);
+                  logger.info("Social auth also failed:", socialAuthError.response?.status, socialAuthError.response?.data?.error || socialAuthError.message);
                 }
 
                 // If both methods fail, offer to connect Google account or proceed to dashboard
@@ -376,9 +375,9 @@ const Signin = () => {
                     // Store the actual access token from backend response
                     if (response.data.access_token) {
                       localStorage.setItem("access_token", response.data.access_token);
-                      console.log("✅ Access token stored successfully from social login (Line 377)");
+                      logger.info("✅ Access token stored successfully from social login (Line 377)");
                     } else {
-                      console.warn("⚠️ No access token in response from backend");
+                      logger.warn("⚠️ No access token in response from backend");
                     }
                     showSuccessSwal("Login Successful!", "You'll be redirected to the dashboard.");
 
@@ -406,7 +405,7 @@ const Signin = () => {
                 role: userObject?.role
               };
 
-              console.log("Trying social auth with payload:", socialPayload);
+              logger.info("Trying social auth with payload:", socialPayload);
 
               const result = await axios.post(
                 API_ENDPOINTS.SOCIAL_AUTH,
@@ -422,13 +421,13 @@ const Signin = () => {
                 return;
               }
             } catch (socialAuthError) {
-              console.log("Social auth failed:", socialAuthError.response?.status, socialAuthError.response?.data?.error || socialAuthError.message);
+              logger.info("Social auth failed:", socialAuthError.response?.status, socialAuthError.response?.data?.error || socialAuthError.message);
 
               // If endpoint not found or there's a server error, offer to proceed to dashboard
               if (socialAuthError.response?.status === 404 ||
                 socialAuthError.response?.status === 422 ||
                 socialAuthError.response?.status === 500) {
-                console.log("Backend error:", socialAuthError.response?.status, socialAuthError.response?.data);
+                logger.info("Backend error:", socialAuthError.response?.status, socialAuthError.response?.data);
 
                 // Offer to connect Google account or proceed to dashboard
 
@@ -470,9 +469,9 @@ const Signin = () => {
                     // Store the actual access token from backend response
                     if (response.data.access_token) {
                       localStorage.setItem("access_token", response.data.access_token);
-                      console.log("✅ Access token stored successfully from social login (Line 466)");
+                      logger.info("✅ Access token stored successfully from social login (Line 466)");
                     } else {
-                      console.warn("⚠️ No access token in response from backend");
+                      logger.warn("⚠️ No access token in response from backend");
                     }
                     showSuccessSwal("Login Successful!", "You'll be redirected to the dashboard.");
 
@@ -530,9 +529,9 @@ const Signin = () => {
                   // Store the actual access token from backend response
                   if (response.data.access_token) {
                     localStorage.setItem("access_token", response.data.access_token);
-                    console.log("✅ Access token stored successfully from social login (Line 521)");
+                    logger.info("✅ Access token stored successfully from social login (Line 521)");
                   } else {
-                    console.warn("⚠️ No access token in response from backend");
+                    logger.warn("⚠️ No access token in response from backend");
                   }
                   showSuccessSwal("Login Successful!", "You'll be redirected to the dashboard.");
 
@@ -550,7 +549,7 @@ const Signin = () => {
               return;
             }
           } catch (error) {
-            console.error("Error in authentication flow:", error);
+            logger.error("Error in authentication flow:", error);
             // Offer to proceed to dashboard with existing user info
             Swal.fire({
               title: "Account Found",
@@ -567,9 +566,9 @@ const Signin = () => {
                 // Store the actual access token from backend response
                 if (response.data.access_token) {
                   localStorage.setItem("access_token", response.data.access_token);
-                  console.log("✅ Access token stored successfully from social login (Line 553)");
+                  logger.info("✅ Access token stored successfully from social login (Line 553)");
                 } else {
-                  console.warn("⚠️ No access token in response from backend");
+                  logger.warn("⚠️ No access token in response from backend");
                 }
                 showSuccessSwal("Login Successful!", "You'll be redirected to the dashboard.");
 
@@ -588,7 +587,7 @@ const Signin = () => {
           }
         } else {
           // User doesn't exist, offer to sign up
-          console.log("User does not exist in the system, will need to sign up");
+          logger.info("User does not exist in the system, will need to sign up");
           // Show a message that the user doesn't exist and offer to sign up
           Swal.fire({
             title: "Account Not Found",
@@ -609,7 +608,7 @@ const Signin = () => {
           return;
         }
       } catch (checkError) {
-        console.error("Error checking if user exists:", checkError);
+        logger.error("Error checking if user exists:", checkError);
         // Continue with normal flow if we can't check
       }
 
@@ -647,9 +646,9 @@ const Signin = () => {
           // Store the actual access token from backend response
           if (response.data.access_token) {
             localStorage.setItem("access_token", response.data.access_token);
-            console.log("✅ Access token stored successfully from Google login (Line 628)");
+            logger.info("✅ Access token stored successfully from Google login (Line 628)");
           } else {
-            console.warn("⚠️ No access token in response from backend");
+            logger.warn("⚠️ No access token in response from backend");
           }
           localStorage.setItem("has_google_account", "true");
 
@@ -683,8 +682,8 @@ const Signin = () => {
       return;
     } catch (error) {
       // Handle login error with more detailed information
-      console.error("Google login error:", error);
-      console.error("Error response:", error.response?.data);
+      logger.error("Google login error:", error);
+      logger.error("Error response:", error.response?.data);
 
       // Show a helpful error message
       Swal.fire({
@@ -724,14 +723,14 @@ const Signin = () => {
     };
 
     try {
-      console.log("Attempting login with:", { email: values.email });
+      logger.info("Attempting login with:", { email: values.email });
 
       const response = await axios.post(API_ENDPOINTS.LOGIN, userData);
-      console.log("Login response:", response.data);
+      logger.info("Login response:", response.data);
 
       // Check if verification is required
       if (response.data.requires_verification) {
-        console.log("Verification required:", response.data.verification_type);
+        logger.info("Verification required:", response.data.verification_type);
 
         // Redirect to verification page with email and verification type
         navigate("/verify", {
@@ -745,14 +744,14 @@ const Signin = () => {
 
       // If success
       if (response.status === 200 && response.data.message) {
-        console.log(response.data);
+        logger.info(response.data);
         const { access_token, refresh_token, user_id, role, first_name, last_name, email } = response.data;
 
 
         // Store tokens and user info securely
         storeUserInfo({ access_token, refresh_token, user_id, role, first_name, last_name, email });
 
-        console.log("Login successful, stored user data:", {
+        logger.info("Login successful, stored user data:", {
           user_id, role, first_name, last_name
         });
 
@@ -774,7 +773,7 @@ const Signin = () => {
               connect_to_user_id: user_id
             };
 
-            console.log("Connecting Google account with payload:", connectPayload);
+            logger.info("Connecting Google account with payload:", connectPayload);
 
             // Call the API to connect the Google account
             const connectResponse = await axios.post(API_ENDPOINTS.CONNECT_SOCIAL, connectPayload, {
@@ -799,7 +798,7 @@ const Signin = () => {
               });
             }
           } catch (connectError) {
-            console.error("Error connecting Google account:", connectError);
+            logger.error("Error connecting Google account:", connectError);
             Swal.fire({
               title: "Connection Failed",
               text: "Could not connect your Google account. Please try again later.",
@@ -840,17 +839,17 @@ const Signin = () => {
         });
       }
     } catch (error) {
-      console.error("Login error:", error);
+      logger.error("Login error:", error);
 
       // Log detailed error information
       if (error.response) {
-        console.error("Error response:", {
+        logger.error("Error response:", {
           status: error.response.status,
           data: error.response.data,
           headers: error.response.headers
         });
       } else if (error.request) {
-        console.error("Error request:", error.request);
+        logger.error("Error request:", error.request);
       }
 
       // If server or network error
@@ -905,7 +904,7 @@ const Signin = () => {
                   }
                 })
                 .catch(err => {
-                  console.error("Error resending verification code:", err);
+                  logger.error("Error resending verification code:", err);
                   Swal.fire({
                     title: "Error",
                     text: "Failed to send verification code. Please try again later.",

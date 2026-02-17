@@ -6,7 +6,7 @@ import "./Feedbackmodal.css";
 
 
 import { showSuccessToast, showErrorToast } from '../../utils/toastConfig';
-
+import logger from "../../utils/logger";
 
 import Axios from "axios";
 import { API_BASE_URL } from "../../config";
@@ -58,7 +58,7 @@ const Feedbackmodal = ({ role, jobId, receiverIds, allUsers, modalId = "feedback
                 setFeedbackSubmitted(!!existingFeedback);
             }
         } catch (error) {
-            console.error('Error checking feedback status:', error);
+            logger.error('Error checking feedback status:', error);
         } finally {
             setIsCheckingFeedback(false);
         }
@@ -76,7 +76,7 @@ const Feedbackmodal = ({ role, jobId, receiverIds, allUsers, modalId = "feedback
                     setApplicantUserIds(response.data.applicants_user_ids);
                 }
             })
-            .catch(error => console.error(error));
+            .catch(error => logger.error(error));
 
         // Check feedback status
         checkFeedbackStatus();
@@ -125,21 +125,21 @@ const Feedbackmodal = ({ role, jobId, receiverIds, allUsers, modalId = "feedback
 
     // Handle confirmed feedback submission
     const handleConfirmFeedback = async () => {
-        console.log('✅ handleConfirmFeedback called');
-        console.log('📦 pendingFeedbackData:', pendingFeedbackData);
+        logger.info('✅ handleConfirmFeedback called');
+        logger.info('📦 pendingFeedbackData:', pendingFeedbackData);
 
         if (!pendingFeedbackData) {
-            console.error('❌ No pending feedback data');
+            logger.error('❌ No pending feedback data');
             return;
         }
 
         try {
-            console.log('📤 Sending feedback to API...');
+            logger.info('📤 Sending feedback to API...');
             const response = await Axios.post(`${API_BASE_URL}/rating/ratings/`, pendingFeedbackData);
-            console.log('✅ API Response:', response);
+            logger.info('✅ API Response:', response);
 
             if (response.status === 201) {
-                console.log('✅ Feedback submitted successfully');
+                logger.info('✅ Feedback submitted successfully');
 
                 // Close the confirmation modal and remove backdrop
                 const confirmModal = document.getElementById('feedbackConfirmModal');
@@ -147,14 +147,14 @@ const Feedbackmodal = ({ role, jobId, receiverIds, allUsers, modalId = "feedback
                     const closeButton = confirmModal.querySelector('[data-bs-dismiss="modal"]');
                     if (closeButton) {
                         closeButton.click();
-                        console.log('✅ Confirmation modal closed');
+                        logger.info('✅ Confirmation modal closed');
                     }
                     // Remove backdrop if it exists
                     setTimeout(() => {
                         const backdrop = document.querySelector('.modal-backdrop');
                         if (backdrop) {
                             backdrop.remove();
-                            console.log('✅ Backdrop removed');
+                            logger.info('✅ Backdrop removed');
                         }
                     }, 100);
                 }
@@ -167,7 +167,7 @@ const Feedbackmodal = ({ role, jobId, receiverIds, allUsers, modalId = "feedback
                 document.body.appendChild(successButton);
                 successButton.click();
                 document.body.removeChild(successButton);
-                console.log('✅ Success modal shown');
+                logger.info('✅ Success modal shown');
 
                 setFeedbackSubmitted(true);
                 setPendingFeedbackData(null);
@@ -187,11 +187,11 @@ const Feedbackmodal = ({ role, jobId, receiverIds, allUsers, modalId = "feedback
                     // Remove all remaining backdrops
                     const backdrops = document.querySelectorAll('.modal-backdrop');
                     backdrops.forEach(backdrop => backdrop.remove());
-                    console.log('✅ All backdrops removed');
+                    logger.info('✅ All backdrops removed');
                 }, 2000);
             }
         } catch (error) {
-            console.error('❌ Error submitting feedback:', error);
+            logger.error('❌ Error submitting feedback:', error);
             showErrorToast('Failed to send feedback. Please try again.');
             setPendingFeedbackData(null);
         }
@@ -215,8 +215,6 @@ const Feedbackmodal = ({ role, jobId, receiverIds, allUsers, modalId = "feedback
                 label: `${user.first_name} ${user.last_name}`
             }))
         : [];
-
-        // console.log(receiverIds)
 
 
 

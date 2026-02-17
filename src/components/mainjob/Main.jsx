@@ -343,7 +343,6 @@ const Main = () => {
   const confirmStartShift = () => {
     // Debug: Check if token exists
     const token = localStorage.getItem('access_token');
-    console.log('🔐 Token exists:', !!token);
     if (!token) {
       notifyError("Authentication token not found. Please log in again.");
       return;

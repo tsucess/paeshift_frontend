@@ -12,6 +12,7 @@ import "./ApplicantProfilemodal.css";
 import { ToastContainer } from 'react-toastify';
 import { showSuccessToast, toastContainerProps } from '../../utils/toastConfig';
 import { API_BASE_URL } from "../../config";
+import logger from "../../utils/logger";
 
 import timeToSeconds from "../../auth/timeToSeconds";
 import ConvertHoursToTime from "../../auth/ConvertHoursToTime";
@@ -118,7 +119,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
         .then((response) => {
           setApplicantStatus(response.data);
         })
-        .catch(error => console.error(error));
+        .catch(error => logger.error(error));
     }
   }, [applicantId, API_BASE_URL, jobId]); // <-- Fix: add applicantId as dependency
 
@@ -130,15 +131,15 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
     const handleModalShow = () => {
       // Refetch all data when modal is shown to ensure real-time updates
       if (applicantId && jobId) {
-        console.log('📋 Modal shown - refetching data for applicant:', applicantId);
+        logger.info('📋 Modal shown - refetching data for applicant:', applicantId);
 
         // Refetch applicant details
         Axios.get(`${API_BASE_URL}/accountsapp/whoami/${applicantId}`)
           .then((response) => {
             setApplicantDetails(response.data);
-            console.log('✅ Applicant details refetched');
+            logger.info('✅ Applicant details refetched');
           })
-          .catch((error) => console.error("Error refetching applicant details:", error));
+          .catch((error) => logger.error("Error refetching applicant details:", error));
 
         // Refetch jobs
         Axios.get(`${API_BASE_URL}/jobs/applicants/applicantjobs/${applicantId}`)
@@ -155,25 +156,25 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
               }
             });
             setApplicantJobs(jobsWithDuration);
-            console.log('✅ Applicant jobs refetched');
+            logger.info('✅ Applicant jobs refetched');
           })
-          .catch((error) => console.error("Error refetching applicant jobs:", error));
+          .catch((error) => logger.error("Error refetching applicant jobs:", error));
 
         // Refetch reviews
         Axios.get(`${API_BASE_URL}/rating/reviews/${applicantId}`)
           .then((response) => {
             setReviews(response.data.data.reviews);
-            console.log('✅ Applicant reviews refetched');
+            logger.info('✅ Applicant reviews refetched');
           })
-          .catch((error) => console.error("Error refetching applicant reviews:", error));
+          .catch((error) => logger.error("Error refetching applicant reviews:", error));
 
         // Refetch application status
         Axios.get(`${API_BASE_URL}/jobs/application/status/${jobId}/${applicantId}/`)
           .then((response) => {
             setApplicantStatus(response.data);
-            console.log('✅ Application status refetched');
+            logger.info('✅ Application status refetched');
           })
-          .catch(error => console.error("Error refetching application status on modal show:", error));
+          .catch(error => logger.error("Error refetching application status on modal show:", error));
       }
     };
 
@@ -238,7 +239,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
       .then((response) => {
         setApplicantStatus(response.data);
       })
-      .catch(error => console.error("Error refetching application status:", error));
+      .catch(error => logger.error("Error refetching application status:", error));
   };
 
   const acceptApplicant = (applicationId, clientId) => {

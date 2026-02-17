@@ -45,7 +45,7 @@ import { showSuccessToast, showErrorToast, toastContainerProps } from '../../uti
 import Map from "./Map";
 import CallModal from "../callworker/CallModal";
 import EmpFeedbackmodal from "../employerfeedbackmodal/EmpFeedbackmodal";
-import { API_BASE_URL, NOTIFY } from "../../config";
+import { getApiUrl, NOTIFY } from "../../config";
 
 // Create a component to display user's location on the map
 const AnyReactComponent = ({ text }) => <div>{text}</div>;
@@ -138,8 +138,8 @@ const Main = () => {
 
 
 
-  // Utility for API URL construction
-  const apiUrl = (path) => `${API_BASE_URL}${path}`;
+  // Utility for API URL construction - uses getApiUrl helper to handle trailing slashes
+  const apiUrl = (path) => getApiUrl(path);
 
   function timeToSeconds(timeStr) {
     const [hours, minutes, seconds] = timeStr.split(":").map(Number);
@@ -248,7 +248,6 @@ useEffect(() => {
   const confirmStartShift = async () => {
     // Debug: Check if token exists
     const token = localStorage.getItem('access_token');
-    console.log('🔐 Token exists:', !!token);
     if (!token) {
       notifyError("Authentication token not found. Please log in again.");
       return;
@@ -292,7 +291,6 @@ useEffect(() => {
   const confirmCancelJob = async () => {
     // Debug: Check if token exists
     const token = localStorage.getItem('access_token');
-    console.log('🔐 Token exists:', !!token);
     if (!token) {
       notifyError("Authentication token not found. Please log in again.");
       return;

@@ -48,7 +48,6 @@ const Postmodal = () => {
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
       if (!place.geometry) {
-        console.log("No details available for input: '" + place.name + "'");
         return;
       }
       const address = place.formatted_address;
@@ -181,11 +180,8 @@ const Postmodal = () => {
                   duration: "2hrs", // Fixed value
                   payment_status: "Pending", // Fixed value
                 };
-
-                console.log("Job data:", jobData);
                 try {
                   const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL}/jobs/create-job`, jobData);
-                  console.log(response.data);
                   // const modal = new bootstrap.Modal('#postJobSuccessmodal');
                   // modal.show(); // Show success modal
                   if (response.data.success) {

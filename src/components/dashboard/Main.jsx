@@ -11,7 +11,7 @@ import { VscBellDot } from "react-icons/vsc";
 
 
 import Stars from "../../assets/images/stars.png";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 
 import getCurrentUser from "../../auth/getCurrentUser";
 import timeToSeconds from "../../auth/timeToSeconds";
@@ -31,13 +31,13 @@ import PaymentMethodmodal from "../paymentmethodmodal/PaymentMethodmodal";
 
 
 const fetchProfile = async (userId) => {
-  const { data } = await Axios.get(`${API_BASE_URL}/accountsapp/user_profile_pictures_full/?user_id=${userId}`);
+  const { data } = await Axios.get(getApiUrl(`accountsapp/user_profile_pictures_full/?user_id=${userId}`));
   return data[0]?.url || "";
 };
 
 const fetchJobs = async (userId) => {
   // Fetch all jobs without server-side pagination since we're doing client-side pagination
-  const { data } = await Axios.get(`${API_BASE_URL}/jobs/clients/clientjobs/${userId}?page=1&page_size=100`);
+  const { data } = await Axios.get(getApiUrl(`jobs/clients/clientjobs/${userId}?page=1&page_size=100`));
   return {
     jobs: data.jobs || [],
     pagination: data.pagination || {
@@ -216,8 +216,6 @@ const Main = () => {
     // Make the API call to process payment
     Axios.post(`${API_BASE_URL}/payment/payments`, payData)
       .then((response) => {
-        console.log("Payment Response:", response);
-
         window.location.href = response.data.data.authorization_url;
         setProcessingPayment(false);
 

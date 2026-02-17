@@ -1,22 +1,23 @@
 import React from "react";
 import iconWarning from "../../assets/images/warning.png"
+import logger from "../../utils/logger";
 import "./FeedbackConfirmmodal.css";
 
 const FeedbackConfirmmodal = ({ onConfirm, onCancel, feedbackType = "feedback" }) => {
     const handleConfirmClick = () => {
-        console.log('🔘 Submit Feedback button clicked');
+        logger.info('🔘 Submit Feedback button clicked');
         if (onConfirm) {
-            console.log('📞 Calling onConfirm callback');
+            logger.info('📞 Calling onConfirm callback');
             onConfirm();
         } else {
-            console.error('❌ onConfirm callback is not defined');
+            logger.error('❌ onConfirm callback is not defined');
         }
     };
 
     const handleCancelClick = () => {
-        console.log('🔘 Go Back button clicked');
+        logger.info('🔘 Go Back button clicked');
         if (onCancel) {
-            console.log('📞 Calling onCancel callback');
+            logger.info('📞 Calling onCancel callback');
             onCancel();
         }
     };

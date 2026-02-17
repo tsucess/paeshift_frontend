@@ -280,7 +280,6 @@ const Main = () => {
       .catch((error) => {
         setReviewsError("Failed to load reviews");
         setReviewsLoading(false);
-        console.log(error);
       });
   };
 
@@ -464,7 +463,6 @@ const Main = () => {
         .then((response) => {
           if (response.data && response.data.data.results) {
             setTransactions(response.data.data.results);
-            console.log(response.data.data.results);
           }
 
 
@@ -483,7 +481,7 @@ const Main = () => {
         .then((response) => {
           if (response.data && response.data.data.results) {
             setPayments(response.data.data.results);
-            console.log(response.data.data.results)          }
+        }
         })
         .catch((error) => {
           console.error("Error fetching payments:", error);

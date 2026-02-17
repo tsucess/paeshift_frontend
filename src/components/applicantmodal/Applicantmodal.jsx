@@ -9,6 +9,7 @@ import { faBars } from "@fortawesome/free-solid-svg-icons";
 import ProfileImage from "../../assets/images/profile.png"
 import "./Applicantmodal.css";
 import { API_BASE_URL } from "../../config";
+import logger from "../../utils/logger";
 
 import Axios from "axios";
 
@@ -60,7 +61,7 @@ const Applicantmodal = ({ getApplicantId, jobId }) => {
                     setUser([]);
                 }
             })
-            .catch(error => console.error(error));
+            .catch(error => logger.error(error));
         return () => { isMounted = false; };
     }, [jobId]);
 

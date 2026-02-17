@@ -3,9 +3,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import brandLogo from "../assets/images/logo-sm.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
 import { toastContainerProps } from '../utils/toastConfig';
-import Axios from "axios";
+import { getApiUrl } from '../config';
+import apiClient from '../services/api';
+import logger from '../utils/logger';
 
 
 
@@ -18,9 +20,21 @@ const VerificationScreen = () => {
     const [email, setEmail] = useState("");
     const [verificationType, setVerificationType] = useState("signup"); // Default to signup
     const [isLoading, setIsLoading] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(60); // 60 seconds countdown for resend
+    const [timeLeft, setTimeLeft] = useState(() => {
+        // Initialize from localStorage if available
+        const savedTime = localStorage.getItem('otpCountdownTime');
+        const savedTimestamp = localStorage.getItem('otpCountdownTimestamp');
+
+        if (savedTime && savedTimestamp) {
+            const elapsed = Math.floor((Date.now() - parseInt(savedTimestamp)) / 1000);
+            const remaining = Math.max(0, parseInt(savedTime) - elapsed);
+            return remaining;
+        }
+        return 0; // Start with 0 so resend is available immediately
+    });
     const [otp, setOtp] = useState(new Array(6).fill(""));
     const [isVerifying, setIsVerifying] = useState(false); // Prevent duplicate verification calls
+    const [verificationSuccess, setVerificationSuccess] = useState(false); // Prevent re-submission after success
 
     // Get email and verification type from location state or query params
     useEffect(() => {
@@ -43,12 +57,49 @@ const VerificationScreen = () => {
         }
     }, [location]);
 
-    // Countdown timer for resend OTP
+    // Auto-submit when all OTP fields are filled
     useEffect(() => {
-        if (timeLeft <= 0) return;
+        const otpCode = otp.join("");
+        const allFilled = otp.every((digit) => digit !== "");
+
+        // Don't auto-submit if verification already succeeded
+        if (verificationSuccess) {
+            logger.info("Verification already successful, skipping auto-submit");
+            return;
+        }
+
+        if (allFilled && otpCode.length === 6 && !isVerifying) {
+            logger.info("Auto-submitting OTP:", otpCode);
+            // Wait a moment to ensure state is fully updated
+            const timer = setTimeout(() => {
+                handleValidation({ preventDefault: () => {} });
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [otp, isVerifying, verificationSuccess]);
+
+    // Countdown timer for resend OTP - with localStorage persistence
+    useEffect(() => {
+        if (timeLeft <= 0) {
+            // Clear localStorage when timer reaches 0
+            localStorage.removeItem('otpCountdownTime');
+            localStorage.removeItem('otpCountdownTimestamp');
+            return;
+        }
+
+        // Save current time to localStorage
+        localStorage.setItem('otpCountdownTime', timeLeft.toString());
+        localStorage.setItem('otpCountdownTimestamp', Date.now().toString());
 
         const timerId = setInterval(() => {
-            setTimeLeft(prevTime => prevTime - 1);
+            setTimeLeft(prevTime => {
+                const newTime = prevTime - 1;
+                if (newTime <= 0) {
+                    localStorage.removeItem('otpCountdownTime');
+                    localStorage.removeItem('otpCountdownTimestamp');
+                }
+                return newTime;
+            });
         }, 1000);
 
         return () => clearInterval(timerId);
@@ -83,26 +134,21 @@ const VerificationScreen = () => {
         });
 
     function handleInput(e, index) {
-        if (isNaN(e.target.value)) return false;
+        const value = e.target.value;
 
-        setOtp([...otp.map((data, i) => (i === index ? e.target.value : data))]);
+        // Only allow numeric input
+        if (value && isNaN(value)) return false;
+
+        // Update OTP array
+        const newOtp = [...otp];
+        newOtp[index] = value;
+        setOtp(newOtp);
 
         // Auto-focus next input field
-        if (e.target.value && e.target.nextSibling) {
+        if (value && e.target.nextSibling) {
             e.target.nextSibling.focus();
         }
-
-        // If all fields are filled, auto-submit
-        const allFilled = otp.every((digit, i) =>
-            i === index ? e.target.value !== "" : digit !== ""
-        );
-
-        if (allFilled && index === 5 && e.target.value !== "") {
-            // Wait a moment before auto-submitting
-            setTimeout(() => {
-                handleValidation({ preventDefault: () => {} });
-            }, 500);
-        }
+        // Note: Auto-submit is now handled by useEffect when all fields are filled
     }
 
     // Handle backspace key to go to previous input
@@ -125,10 +171,17 @@ const VerificationScreen = () => {
         setIsLoading(true);
 
         try {
-            const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL }/accountsapp/otp/request`, {
+            const apiUrl = getApiUrl('accountsapp/otp/request');
+            logger.info("📤 Resending OTP to:", email);
+            logger.info("📍 API URL:", apiUrl);
+            logger.info("📝 Verification Type:", verificationType);
+
+            const response = await apiClient.post(apiUrl, {
                 email: email,
                 type: verificationType
             });
+
+            logger.info("✅ Resend OTP Response:", response.status, response.data);
 
             if (response.status === 200 && response.data.message) {
                 notify("OTP has been resent to your email");
@@ -137,8 +190,16 @@ const VerificationScreen = () => {
                 errorNotify(response.data.message || "Failed to resend OTP");
             }
         } catch (error) {
-            console.error("Resend OTP error:", error);
-            errorNotify(error.response?.data?.message || "An error occurred while resending OTP");
+            logger.error("❌ Resend OTP error:", error);
+            logger.error("📋 Error response:", error.response?.data);
+            logger.error("📋 Error status:", error.response?.status);
+            logger.error("📋 Error message:", error.message);
+
+            const errorMessage = error.response?.data?.message ||
+                                error.response?.data?.error ||
+                                error.message ||
+                                "An error occurred while resending OTP";
+            errorNotify(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -149,13 +210,15 @@ const VerificationScreen = () => {
 
         // Prevent duplicate verification calls
         if (isVerifying) {
-            console.log("Verification already in progress, skipping duplicate call");
+            logger.info("Verification already in progress, skipping duplicate call");
             return;
         }
 
         const otpCode = otp.join("");
+        logger.info(`OTP Code: "${otpCode}", Length: ${otpCode.length}, OTP Array:`, otp);
 
-        if (otpCode.length !== 6) {
+        // Check if all 6 digits are filled
+        if (otpCode.length !== 6 || otp.some(digit => digit === "")) {
             errorNotify("Please enter all 6 digits of the OTP");
             return;
         }
@@ -169,98 +232,96 @@ const VerificationScreen = () => {
         setIsVerifying(true);
 
         try {
-            console.log(`Verifying OTP for ${email} with type ${verificationType}`);
+            logger.info(`Verifying OTP for ${email} with type ${verificationType}`);
 
-            // For registration, call verify-registration endpoint directly (handles both OTP verification and activation)
-            if (verificationType === "registration" || verificationType === "signup") {
-                const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL }/accountsapp/verify-registration`, {
-                    email: email,
-                    code: otpCode,
-                    type: "registration"
-                });
+            // Use different endpoints based on verification type
+            let endpoint = 'accountsapp/otp/verify'; // Default endpoint
 
-                console.log("Registration verification response:", response.data);
+            // For registration, use the dedicated endpoint that activates the account
+            if (verificationType === 'registration' || verificationType === 'signup') {
+                endpoint = 'accountsapp/verify-registration';
+            }
 
-                if (response.data.message) {
-                    notify("Account activated successfully! Please login to continue.");
+            const response = await apiClient.post(getApiUrl(endpoint), {
+                email: email,
+                code: otpCode,
+                type: verificationType
+            });
 
-                    // Redirect to signin page after successful activation
-                    setTimeout(() => {
-                        navigate("/signin");
-                    }, 1500);
-                    return;
+            logger.info("OTP verification response:", response.data);
+
+            // Check if OTP verification was successful
+            if (response.data.message && response.data.message.includes("successfully")) {
+                // Mark verification as successful to prevent re-submission
+                setVerificationSuccess(true);
+                // Clear OTP fields to prevent auto-submit from triggering again
+                setOtp(new Array(6).fill(""));
+
+                // Handle different verification types
+                switch (verificationType) {
+                    case "registration":
+                    case "signup":
+                        // For registration, redirect to signin page
+                        notify("Account activated successfully! Please login to continue.");
+                        setTimeout(() => {
+                            navigate("/signin");
+                        }, 1500);
+                        return;
+
+                    case "login":
+                        // Store token if provided
+                        if (response.data.access_token) {
+                            localStorage.setItem("access_token", response.data.access_token);
+                            logger.info("Access token stored successfully");
+                        } else if (response.data.token) {
+                            localStorage.setItem("access_token", response.data.token);
+                            logger.info("Token stored as access_token");
+                        } else {
+                            logger.warn("No token received from server");
+                        }
+
+                        if (response.data.user_id) {
+                            localStorage.setItem("user_id", response.data.user_id);
+                            logger.info("User ID stored successfully:", response.data.user_id);
+                        }
+
+                        if (response.data.role) {
+                            localStorage.setItem("user_role", response.data.role);
+                            logger.info("User role stored successfully:", response.data.role);
+                        }
+
+                        // For login, redirect to dashboard
+                        notify("Login successful! Redirecting to dashboard...");
+                        setTimeout(() => {
+                            navigate("/dashboard");
+                        }, 1500);
+                        break;
+
+                    case "password_reset":
+                        // Redirect to create new password page
+                        notify("OTP verified successfully. You can now reset your password.");
+                        setTimeout(() => {
+                            navigate("/create-password", {
+                                state: {
+                                    email: email,
+                                    reset_token: response.data.reset_token
+                                }
+                            });
+                        }, 1500);
+                        break;
+
+                    default:
+                        // Generic success, redirect to home
+                        notify("Verification successful! Redirecting...");
+                        setTimeout(() => {
+                            navigate("/");
+                        }, 1500);
                 }
             } else {
-                // For other types (login, password_reset), use the regular OTP verify endpoint
-                const response = await Axios.post(`${import.meta.env.VITE_API_BASE_URL }/accountsapp/otp/verify`, {
-                    email: email,
-                    code: otpCode,
-                    type: verificationType
-                });
-
-                console.log("OTP verification response:", response.data);
-
-                    // Check if OTP verification was successful
-                    if (response.data.message && response.data.message.includes("successfully")) {
-                        notify(response.data.message || "OTP verification successful");
-
-                        // Handle different verification types
-                        switch (verificationType) {
-                            case "login":
-                                // Store token if provided
-                                if (response.data.access_token) {
-                                    localStorage.setItem("access_token", response.data.access_token);
-                                    console.log("Access token stored successfully");
-                                } else if (response.data.token) {
-                                    localStorage.setItem("access_token", response.data.token);
-                                    console.log("Token stored as access_token");
-                                } else {
-                                    console.warn("No token received from server");
-                                }
-
-                                if (response.data.user_id) {
-                                    localStorage.setItem("user_id", response.data.user_id);
-                                    console.log("User ID stored successfully:", response.data.user_id);
-                                }
-
-                                if (response.data.role) {
-                                    localStorage.setItem("user_role", response.data.role);
-                                    console.log("User role stored successfully:", response.data.role);
-                                }
-
-                                // For login, redirect to dashboard
-                                notify("Login successful! Redirecting to dashboard...");
-                                setTimeout(() => {
-                                    navigate("/dashboard");
-                                }, 1500);
-                                break;
-
-                            case "password_reset":
-                                // Redirect to create new password page
-                                notify("OTP verified successfully. You can now reset your password.");
-                                setTimeout(() => {
-                                    navigate("/create-password", {
-                                        state: {
-                                            email: email,
-                                            reset_token: response.data.reset_token
-                                        }
-                                    });
-                                }, 1500);
-                                break;
-
-                            default:
-                                // Generic success, redirect to home
-                                notify("Verification successful! Redirecting...");
-                                setTimeout(() => {
-                                    navigate("/");
-                                }, 1500);
-                        }
-                    } else {
-                        errorNotify(response.data.message || "OTP verification failed");
-                    }
-                }
+                errorNotify(response.data.message || "OTP verification failed");
+            }
         } catch (error) {
-            console.error("OTP verification error:", error);
+            logger.error("OTP verification error:", error);
             const errorMessage = error.response?.data?.message ||
                                 error.response?.data?.error ||
                                 "An error occurred during verification";

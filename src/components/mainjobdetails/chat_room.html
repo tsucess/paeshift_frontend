@@ -19,7 +19,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            console.log("✅ Document fully loaded");
 
             const jobId = "{{ job_id }}";
             let chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${jobId}/`);
@@ -51,7 +50,6 @@
 
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        console.log("✅ Location permission granted:", position);
                         locationSocket.send(JSON.stringify({
                             latitude: position.coords.latitude,
                             longitude: position.coords.longitude

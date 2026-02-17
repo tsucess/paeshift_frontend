@@ -18,6 +18,7 @@ import swal from 'sweetalert';
 
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import logger from '../utils/logger';
 
 
 
@@ -92,11 +93,11 @@ const Signup = () => {
                       password: values.confirmPassword
                     };
 
-                    console.log(userdata);
+                    logger.info(userdata);
 
                     try {
                       const response = await apiService.signup(userdata);
-                      console.log("Signup response:", response.data);
+                      logger.info("Signup response:", response.data);
 
                       // Check if verification is required
                       if (response.data.requires_verification) {
@@ -133,7 +134,7 @@ const Signup = () => {
                         swal("Registration Failed!", response.data.error || "Something went wrong", "error");
                       }
                     } catch (error) {
-                      console.error("Signup error:", error);
+                      logger.error("Signup error:", error);
 
                       // Friendly error messaging (handle duplicate email / 409)
                       let errorMessage = "Network error occurred";

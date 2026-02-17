@@ -75,7 +75,6 @@ const Profilemodal = ({ clientData, savedJob, }) => {
       .catch((error) => {
         setReviewsError("Failed to load reviews");
         setReviewsLoading(false);
-        console.log(error);
       });
   };
 

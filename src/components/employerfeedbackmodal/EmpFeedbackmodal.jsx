@@ -110,21 +110,15 @@ const EmpFeedbackmodal = ({ jobId, receiverIds, modalId = "EmpFeedbackModal", on
 
     // Handle confirmed feedback submission
     const handleConfirmFeedback = async () => {
-        console.log('✅ handleConfirmFeedback called');
-        console.log('📦 pendingFeedbackData:', pendingFeedbackData);
-
         if (!pendingFeedbackData) {
             console.error('❌ No pending feedback data');
             return;
         }
 
         try {
-            console.log('📤 Sending feedback to API...');
             const response = await Axios.post(`${API_BASE_URL}/rating/ratings/`, pendingFeedbackData);
-            console.log('✅ API Response:', response);
 
             if (response.status === 201) {
-                console.log('✅ Feedback submitted successfully');
 
                 // Close the confirmation modal and remove backdrop
                 const confirmModal = document.getElementById('feedbackConfirmModal');
@@ -132,14 +126,13 @@ const EmpFeedbackmodal = ({ jobId, receiverIds, modalId = "EmpFeedbackModal", on
                     const closeButton = confirmModal.querySelector('[data-bs-dismiss="modal"]');
                     if (closeButton) {
                         closeButton.click();
-                        console.log('✅ Confirmation modal closed');
+
                     }
                     // Remove backdrop if it exists
                     setTimeout(() => {
                         const backdrop = document.querySelector('.modal-backdrop');
                         if (backdrop) {
                             backdrop.remove();
-                            console.log('✅ Backdrop removed');
                         }
                     }, 100);
                 }
@@ -152,7 +145,6 @@ const EmpFeedbackmodal = ({ jobId, receiverIds, modalId = "EmpFeedbackModal", on
                 document.body.appendChild(successButton);
                 successButton.click();
                 document.body.removeChild(successButton);
-                console.log('✅ Success modal shown');
 
                 setFeedbackSubmitted(true);
                 setPendingFeedbackData(null);
@@ -172,7 +164,6 @@ const EmpFeedbackmodal = ({ jobId, receiverIds, modalId = "EmpFeedbackModal", on
                     // Remove all remaining backdrops
                     const backdrops = document.querySelectorAll('.modal-backdrop');
                     backdrops.forEach(backdrop => backdrop.remove());
-                    console.log('✅ All backdrops removed');
                 }, 2000);
             }
         } catch (error) {

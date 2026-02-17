@@ -23,7 +23,7 @@ const performanceMetrics = {
 const requestCache = new Map();
 const CACHE_DURATION = 5000; // 5 seconds
 
-// Performance monitoring function
+// Performance monitoring function with endpoint-specific thresholds
 const trackPerformance = (url, duration, isCacheHit = false) => {
   performanceMetrics.totalRequests++;
   performanceMetrics.totalResponseTime += duration;
@@ -35,20 +35,29 @@ const trackPerformance = (url, duration, isCacheHit = false) => {
     performanceMetrics.cacheMisses++;
   }
 
-  // Track slow requests (>500ms)
-  if (duration > 500) {
+  // Determine threshold based on endpoint type
+  let threshold = 500; // Default threshold (500ms)
+
+  // Endpoints that typically take longer (email sending, user creation, etc.)
+  if (url.includes('/signup') || url.includes('/login') || url.includes('/verify') || url.includes('/reset')) {
+    threshold = 3000; // 3 seconds for auth-related endpoints
+  } else if (url.includes('/create') || url.includes('/update') || url.includes('/delete')) {
+    threshold = 2000; // 2 seconds for write operations
+  }
+
+  // Track slow requests (above threshold)
+  if (duration > threshold) {
     performanceMetrics.slowRequests.push({
       url,
       duration,
       timestamp: new Date().toISOString(),
     });
-    console.warn(`⚠️ Slow API request: ${url} took ${duration.toFixed(2)}ms`);
+    console.warn(`⚠️ Slow API request: ${url} took ${duration.toFixed(2)}ms (threshold: ${threshold}ms)`);
   }
 
   // Log performance metrics every 10 requests
   if (performanceMetrics.totalRequests % 10 === 0) {
     const cacheHitRate = ((performanceMetrics.cacheHits / performanceMetrics.totalRequests) * 100).toFixed(2);
-    console.log(`📊 Performance Metrics: Avg Response: ${performanceMetrics.averageResponseTime.toFixed(2)}ms, Cache Hit Rate: ${cacheHitRate}%`);
   }
 };
 
@@ -79,6 +88,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // [CRITICAL] Send cookies with every request for session persistence
 });
 
 // Request interceptor to add auth token and performance monitoring (Phase 2.3)
@@ -292,5 +302,8 @@ export const apiService = {
   getPerformanceMetrics,
   clearPerformanceMetrics,
 };
+
+// Export apiClient directly for use in components that need the raw axios instance
+export { apiClient };
 
 export default apiService;

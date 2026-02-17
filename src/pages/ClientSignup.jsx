@@ -15,6 +15,7 @@ import { getApiUrl } from '../config.js';
 
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import logger from '../utils/logger';
 
 
 
@@ -99,12 +100,6 @@ const ClientSignup = () => {
                       role: "client"
                     };
 
-                    // console.log(userdata);
-
-
-                    // let baseURL = "http://localhost:8000/Users";
-
-
                     let baseURL = getApiUrl('/accounts/signup');
                     try {
                       // Direct signup - let backend handle email uniqueness validation
@@ -117,7 +112,7 @@ const ClientSignup = () => {
                           }, 1500);
                         })
                         .catch((error) => {
-                          console.error(error);
+                          logger.error(error);
 
                           // Extract error message from different possible response formats
                           let errorMessage = "Network error occurred";
@@ -132,52 +127,8 @@ const ClientSignup = () => {
                           swal("Registration Failed!", errorMessage, "error");
                         });
                     } catch (error) {
-                      console.error(error);
+                      logger.error(error);
                     }
-
-                    // swal(<p className="mb-2">Registeration Successful!</p>, 'success', false, 1500)
-                    // Endpoint needs to be updated
-                    // let baseURL = "https://paeshift-backend.onrender.com/userApi/v1/user/register/";
-                    // try {
-                    //   // let allUser = await Axios.get(`${baseURL}`);
-
-                    //   // let isUnique = false;
-                    //   // allUser.data.forEach((each) => {
-                    //   //   if (each.email === values.email) {
-                    //   //     isUnique = true;
-                    //   //   }
-                    //   // });
-
-
-                    //   // setInterval(() => {
-                    //   //   AppSwal.showLoading()
-                    //   // }, 1000);
-
-                    //   // use the typed email to check if the email already exist
-                    //   // if (!isUnique) {
-                    //   await Axios({
-                    //     method: 'post',
-                    //     url: `${baseURL}`,
-                    //     // url: "https://paeshift-backend.onrender.com/userApi/v1/user/register/",
-                    //     data: userdata
-                    //   })
-                    //     .then((response) => {
-                    //       console.log(response);
-                    //       swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
-                    //       redir("../signin");
-                    //       // setTimeout(() => {
-                    //       // redir("../signin");
-                    //       // }, 1500);
-                    //     })
-                    //     .catch((error) => {
-                    //       swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
-                    //       console.error(error.message);
-                    //     });
-
-                    //   // if unique email allow to signup else dont
-                    // } catch (error) {
-                    //   console.error(error);
-                    // }
                   }
                   }
                 >

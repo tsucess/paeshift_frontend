@@ -68,10 +68,8 @@ function AccountModal() {
             account_number: formData.accountnumber,
             bank_name: formData.bankname
         };
-        console.log(accountData);
         Axios.post(`${API_BASE_URL}/accountsapp/upload-account-details`, accountData)
             .then((response) => {
-                console.log(response.data.message) // updated message
                 showSuccessSwal("Success!", response.data.message);
                 setIsLoading(false);
                 // Close modal after success

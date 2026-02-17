@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Jobdetails.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
@@ -56,6 +56,16 @@ const Map = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingLocationUpdate, setPendingLocationUpdate] = useState(null);
 
+  // WebSocket and location tracking refs
+  const locationSocketRef = useRef(null);
+  const watchIdRef = useRef(null);
+  const locationUpdateIntervalRef = useRef(null);
+  const lastLocationRef = useRef(null);
+
+  // WebSocket state
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const [otherUserLocation, setOtherUserLocation] = useState(null);
+
   // Add this function to save location changes to the backend
   const saveLocationToBackend = async (newPosition, address) => {
     try {
@@ -73,7 +83,6 @@ const Map = () => {
           }
         }
       );
-      console.log('Location updated successfully:', response.data);
       return true;
     } catch (error) {
       console.error('Error updating location:', error);
@@ -202,8 +211,6 @@ const Map = () => {
           setProfile(user);
         }
 
-        // Log the jobId to verify we have it
-        // console.log('Job ID:', jobId);
         
         // Make sure we're using the correct jobId format
         const jobIdToUse = typeof jobId === 'object' ? jobId.id : jobId;
@@ -300,6 +307,7 @@ const Map = () => {
           lng: pos.coords.longitude
         };
         setUserLocation(newLocation);
+        lastLocationRef.current = newLocation; // Store for WebSocket sending
         getUserLocationName(newLocation.lat, newLocation.lng);
       },
       err => {
@@ -313,6 +321,7 @@ const Map = () => {
       },
       { enableHighAccuracy: true }
     );
+    watchIdRef.current = watchId; // Store watchId for cleanup
     return () => navigator.geolocation.clearWatch(watchId);
   }, [map, maps]);
 
@@ -329,19 +338,135 @@ const Map = () => {
     const R = 6371;
     const dLat = (jobDetails.latitude - userLocation.lat) * Math.PI / 180;
     const dLon = (jobDetails.longitude - userLocation.lng) * Math.PI / 180;
-    const a = 
+    const a =
       Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(userLocation.lat * Math.PI / 180) * 
-      Math.cos(jobDetails.latitude * Math.PI / 180) * 
+      Math.cos(userLocation.lat * Math.PI / 180) *
+      Math.cos(jobDetails.latitude * Math.PI / 180) *
       Math.sin(dLon/2) * Math.sin(dLon/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
   };
 
+  // Handle incoming location updates from WebSocket
+  const handleLocationUpdate = (data) => {
+    if (data.type === 'connection_established') {
+      return;
+    }
+
+    if (data.type === 'location_update') {
+      const { user_id, username, latitude, longitude, timestamp } = data;
+
+      // Only update if it's from a different user
+      if (profile && user_id !== profile.id) {
+        setOtherUserLocation({
+          lat: latitude,
+          lng: longitude,
+          user_id,
+          username,
+          timestamp: new Date(timestamp)
+        });
+      }
+    }
+  };
+
+  // Initialize WebSocket connection for real-time location tracking
+  useEffect(() => {
+    if (!jobId) return;
+
+    const initializeWebSocket = () => {
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${wsProtocol}//${window.location.host}/ws/jobs/${jobId}/location/`;
+
+      try {
+        locationSocketRef.current = new WebSocket(wsUrl);
+
+        locationSocketRef.current.onopen = () => {
+          setConnectionStatus('connected');
+        };
+
+        locationSocketRef.current.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            handleLocationUpdate(data);
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+          }
+        };
+
+        locationSocketRef.current.onerror = (error) => {
+          console.error('❌ WebSocket error:', error);
+          setConnectionStatus('error');
+        };
+
+        locationSocketRef.current.onclose = () => {
+          setConnectionStatus('disconnected');
+          setTimeout(initializeWebSocket, 3000);
+        };
+      } catch (error) {
+        console.error('Failed to create WebSocket:', error);
+        setConnectionStatus('error');
+      }
+    };
+
+    initializeWebSocket();
+
+    return () => {
+      if (locationSocketRef.current) {
+        locationSocketRef.current.close();
+      }
+    };
+  }, [jobId, profile]);
+
+  // Send location updates every 5 seconds
+  useEffect(() => {
+    locationUpdateIntervalRef.current = setInterval(() => {
+      if (
+        locationSocketRef.current?.readyState === WebSocket.OPEN &&
+        lastLocationRef.current
+      ) {
+        const locationData = {
+          type: 'location_update',
+          latitude: lastLocationRef.current.lat,
+          longitude: lastLocationRef.current.lng,
+          timestamp: new Date().toISOString()
+        };
+        locationSocketRef.current.send(JSON.stringify(locationData));
+      }
+    }, 5000);
+
+    return () => {
+      if (locationUpdateIntervalRef.current) {
+        clearInterval(locationUpdateIntervalRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="row m-0 p-0 map_wrapper">
       {jobDetails.latitude && jobDetails.longitude && userLocation.lat && userLocation.lng ? (
         <div className="col-12 m-0 p-0" style={{ height: '500px', width: '100%', position: 'relative' }}>
+          {/* Connection Status Indicator */}
+          <div style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            background: 'white',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            zIndex: 10,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            fontWeight: 'bold'
+          }}>
+            Status: <span style={{
+              fontWeight: 'bold',
+              color: connectionStatus === 'connected' ? '#28a745' :
+                     connectionStatus === 'error' ? '#dc3545' : '#ffc107'
+            }}>
+              {connectionStatus}
+            </span>
+          </div>
+
           <GoogleMapReact
             // bootstrapURLKeys={{ key: "AIzaSyCiCDANDMScIcsm-d0QMDaAXFS8M-0GdLU" }}
             bootstrapURLKeys={{ key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY }}
@@ -350,12 +475,21 @@ const Map = () => {
             yesIWantToUseGoogleMapApiInternals
             onGoogleApiLoaded={handleApiLoaded}
           >
-            <Marker 
-              lat={userLocation.lat} 
-              lng={userLocation.lng} 
-              text={`You (${userLocationName})`} 
-              isUser={true} 
+            <Marker
+              lat={userLocation.lat}
+              lng={userLocation.lng}
+              text={`You (${userLocationName})`}
+              isUser={true}
             />
+            {/* Display other user's location if available */}
+            {otherUserLocation && (
+              <Marker
+                lat={otherUserLocation.lat}
+                lng={otherUserLocation.lng}
+                text={`${otherUserLocation.username} (Moving)`}
+                isUser={false}
+              />
+            )}
           </GoogleMapReact>
           
           <div className="mt-2 text-center">

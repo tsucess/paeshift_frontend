@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "./JobPreviewmodal.css";
+import logger from "../../utils/logger";
 
 // Import bootstrap for modal handling
 import * as bootstrap from 'bootstrap';
@@ -23,16 +24,16 @@ const JobPreviewmodal = ({ itemData, handleDelete, setOutJobData }) => {
             const successModal = new bootstrap.Modal(document.getElementById('paymentMethodModal'));
             successModal.show();
         } catch (error) {
-            console.error("Error showing paymentMethod modal:", error);
+            logger.error("Error showing paymentMethod modal:", error);
         }
     }
-    
+
     const initiateEditFormModal = () => {
         try {
             const successModal = new bootstrap.Modal(document.getElementById('editpostModal'));
             successModal.show();
         } catch (error) {
-            console.error("Error showing paymentMethod modal:", error);
+            logger.error("Error showing paymentMethod modal:", error);
         }
     }
 

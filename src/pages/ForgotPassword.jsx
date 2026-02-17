@@ -6,6 +6,7 @@ import { faCheck, faChevronLeft, faCircle, faEye, faEyeSlash } from "@fortawesom
 import { ToastContainer } from 'react-toastify';
 import { showSuccessToast, showErrorToast, toastContainerProps } from '../utils/toastConfig';
 import Axios from "axios";
+import logger from "../utils/logger";
 
 
 const ForgotPassword = () => {
@@ -84,7 +85,7 @@ const ForgotPassword = () => {
                 errorNotify(response.data.error || "Failed to send password reset email");
             }
         } catch (error) {
-            console.error("Password reset error:", error);
+            logger.error("Password reset error:", error);
 
             // Reset button state
             const submitButton = e.target.querySelector('button[type="submit"]');

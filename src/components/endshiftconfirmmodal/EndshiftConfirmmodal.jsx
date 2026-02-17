@@ -12,7 +12,6 @@ const EndshiftConfirmmodal = ({ onConfirm }) => {
 
         // Debug: Check if token exists
         const token = localStorage.getItem('access_token');
-        console.log('🔐 Token exists:', !!token);
         if (!token) {
             showErrorToast("Authentication token not found. Please log in again.");
             return;
