@@ -717,6 +717,7 @@ const Signin = () => {
 
   // Called when the form is submitted
   const handleLogin = async (values) => {
+    setLoading(true);
     const userData = {
       email: values.email,
       password: values.password,
@@ -948,6 +949,8 @@ const Signin = () => {
           icon: "error"
         });
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -987,7 +990,7 @@ const Signin = () => {
                       <label htmlFor="email" className="form-label mb-0">
                         Email:
                       </label>
-                      <Field name="email" className="form-control" />
+                      <Field name="email" className="form-control" disabled={loading} />
                       {touched.email && errors.email && (
                         <div className="errors">{errors.email}</div>
                       )}
@@ -1004,13 +1007,15 @@ const Signin = () => {
                           id="password"
                           className="form-control"
                           placeholder="Enter your password"
+                          disabled={loading}
                         />
                         <FontAwesomeIcon
                           icon={show === "password" ? faEye : faEyeSlash}
                           onClick={() =>
-                            setShow(show === "password" ? "text" : "password")
+                            !loading && setShow(show === "password" ? "text" : "password")
                           }
                           className="eye-icon"
+                          style={{opacity: loading ? 0.5 : 1, cursor: loading ? 'not-allowed' : 'pointer'}}
                         />
                       </span>
                       {touched.password && errors.password && (
@@ -1019,11 +1024,18 @@ const Signin = () => {
                     </div>
 
                     <p className="mt-3">
-                      <Link to="/forgotpassword">Forgot Password?</Link>
+                      <Link to="/forgotpassword" onClick={(e) => loading && e.preventDefault()}>Forgot Password?</Link>
                     </p>
 
-                    <button type="submit" className="btn primary-btn w-100 mt-2">
-                      Login
+                    <button type="submit" className="btn primary-btn w-100 mt-2" disabled={loading}>
+                      {loading ? (
+                        <span>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          Logging in...
+                        </span>
+                      ) : (
+                        'Login'
+                      )}
                     </button>
 
                     <div className="social-login-divider mt-4 mb-3" style={{
@@ -1046,9 +1058,19 @@ const Signin = () => {
                         onClick={() => login()}
                         disabled={loading}
                         type="button"
+                        style={{opacity: loading ? 0.6 : 1}}
                       >
-                        <img src={igoogle} alt="Google" className="me-2" />
-                        Login with Google
+                        {loading ? (
+                          <span>
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Logging in...
+                          </span>
+                        ) : (
+                          <>
+                            <img src={igoogle} alt="Google" className="me-2" />
+                            Login with Google
+                          </>
+                        )}
                       </button>
 
                       {/* Facebook login */}

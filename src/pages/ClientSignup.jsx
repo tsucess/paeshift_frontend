@@ -41,6 +41,7 @@ const ClientSignup = () => {
 
   let [show, setShow] = useState('password');
   let [show1, setShow1] = useState('password');
+  let [isLoading, setIsLoading] = useState(false);
 
 
 
@@ -85,6 +86,7 @@ const ClientSignup = () => {
 
                   validationSchema={Schema}
                   onSubmit={async (values) => {
+                    setIsLoading(true);
                     // same shape as initial values
                     /**
                      * Steps to create a new user
@@ -125,9 +127,13 @@ const ClientSignup = () => {
                           }
 
                           swal("Registration Failed!", errorMessage, "error");
+                        })
+                        .finally(() => {
+                          setIsLoading(false);
                         });
                     } catch (error) {
                       logger.error(error);
+                      setIsLoading(false);
                     }
                   }
                   }
@@ -136,38 +142,47 @@ const ClientSignup = () => {
                     <Form className="signup_form">
                       <div>
                         <label htmlFor="firstName" className="form-label mb-0">First Name:</label>
-                        <Field name="firstName" className="form-control" />
+                        <Field name="firstName" className="form-control" disabled={isLoading} />
                         {/* If this field has been touched, and it contains an error, display it */}
                         {touched.firstName && errors.firstName && (<div className="errors">{errors.firstName}</div>)}
                       </div>
                       <div>
                         <label htmlFor="lastName" className="form-label mb-0">Last Name:</label>
-                        <Field name="lastName" className="form-control" />
+                        <Field name="lastName" className="form-control" disabled={isLoading} />
                         {touched.lastName && errors.lastName && (<div className="errors">{errors.lastName}</div>)}
                       </div>
                       <div>
                         <label htmlFor="email" className="form-label mb-0">Email:</label>
-                        <Field name="email" className="form-control" />
+                        <Field name="email" className="form-control" disabled={isLoading} />
                         {touched.email && errors.email && (<div className="errors">{errors.email}</div>)}
                       </div>
                       <div>
                         <label htmlFor="password" className="form-label mb-0">Create Password:</label>
                         <span className="visibility">
-                          <Field type={show} name="password" id="password" className="form-control" />
-                          <FontAwesomeIcon icon={show === "password" ? faEye : faEyeSlash} onClick={() => setShow(show === "password" ? "text" : "password")} className='eye-icon' />
+                          <Field type={show} name="password" id="password" className="form-control" disabled={isLoading} />
+                          <FontAwesomeIcon icon={show === "password" ? faEye : faEyeSlash} onClick={() => !isLoading && setShow(show === "password" ? "text" : "password")} className='eye-icon' style={{opacity: isLoading ? 0.5 : 1, cursor: isLoading ? 'not-allowed' : 'pointer'}} />
                         </span>
                         {touched.password && errors.password && (<div className="errors">{errors.password}</div>)}
                       </div>
                       <div >
                         <label htmlFor="confrimPassword" className="form-label mb-0">Confirm Password:</label>
                         <span className="visibility">
-                          <Field type={show1} name="confirmPassword" id="confirmPassword" className="form-control" />
-                          <FontAwesomeIcon icon={show1 === "password" ? faEye : faEyeSlash} onClick={() => setShow1(show1 === "password" ? "text" : "password")} className='eye-icon' />
+                          <Field type={show1} name="confirmPassword" id="confirmPassword" className="form-control" disabled={isLoading} />
+                          <FontAwesomeIcon icon={show1 === "password" ? faEye : faEyeSlash} onClick={() => !isLoading && setShow1(show1 === "password" ? "text" : "password")} className='eye-icon' style={{opacity: isLoading ? 0.5 : 1, cursor: isLoading ? 'not-allowed' : 'pointer'}} />
                         </span>
                         {touched.confirmPassword && errors.confirmPassword && (<div className="errors">{errors.confirmPassword}</div>)}
                       </div>
-                      <button type="submit" name='submit' className="btn primary-btn w-100 mt-2">Sign Up</button>
-                      <p className="mt-3">Already have an account? <Link to="/signin">Login</Link></p>
+                      <button type="submit" name='submit' className="btn primary-btn w-100 mt-2" disabled={isLoading}>
+                        {isLoading ? (
+                          <span>
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Creating Account...
+                          </span>
+                        ) : (
+                          'Sign Up'
+                        )}
+                      </button>
+                      <p className="mt-3">Already have an account? <Link to="/signin" onClick={(e) => isLoading && e.preventDefault()}>Login</Link></p>
                     </Form>
                   )}
                 </Formik>

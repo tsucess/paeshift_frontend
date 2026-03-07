@@ -6,3 +6,6 @@ password12345
 
 taofeeq.muhammad22@gmail.com
 Taofeeq1993@# paeshift_test.com
+
+admin@example.com
+Password12345@
