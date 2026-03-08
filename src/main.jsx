@@ -1,37 +1,39 @@
 import { createRoot } from 'react-dom/client'
-/*  */import React from 'react'
+import React, { Suspense } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './assets/css/style.css';  // ENABLED - Required for Flashscreen styling
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
-
-const MySwal = withReactContent(Swal);
-
-
-import Flashscreen from './pages/Flashscreen.jsx';
-import Welcome from './pages/Welcome.jsx';
-import AppSignup from './pages/AppSignup.jsx';
-import ClientSignup from './pages/ClientSignup.jsx';
-import Signin from './pages/Signin.jsx';
-import ForgotPassword from './pages/ForgotPassword.jsx';
-import CreatePassword from './pages/CreatePassword.jsx';
-import VerificationScreen from './pages/VerificationScreen.jsx';
-import ThirdParty from './pages/ThirdParty.jsx';
-import Dashboard from './pages/Dashboard.jsx';
-import Home from './pages/Home.jsx';
+// Lazy load pages for code splitting
+const Flashscreen = React.lazy(() => import('./pages/Flashscreen.jsx'));
+const Welcome = React.lazy(() => import('./pages/Welcome.jsx'));
+const AppSignup = React.lazy(() => import('./pages/AppSignup.jsx'));
+const ClientSignup = React.lazy(() => import('./pages/ClientSignup.jsx'));
+const Signin = React.lazy(() => import('./pages/Signin.jsx'));
+const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword.jsx'));
+const CreatePassword = React.lazy(() => import('./pages/CreatePassword.jsx'));
+const VerificationScreen = React.lazy(() => import('./pages/VerificationScreen.jsx'));
+const ThirdParty = React.lazy(() => import('./pages/ThirdParty.jsx'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard.jsx'));
+const Home = React.lazy(() => import('./pages/Home.jsx'));
+const Jobs = React.lazy(() => import('./pages/Jobs.jsx'));
+const JobDetails = React.lazy(() => import('./pages/JobDetails.jsx'));
+const Settings = React.lazy(() => import('./pages/Settings.jsx'));
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import Jobs from './pages/Jobs.jsx';
-import JobDetails from './pages/JobDetails.jsx';
-import Settings from './pages/Settings.jsx';
 import { RecoilRoot } from "recoil";
 import { QueryClientProvider } from '@tanstack/react-query';
 // Phase 2.3: Import optimized QueryClient configuration
 import createQueryClient from './utils/queryClient.js';
 import { performanceMonitor } from './utils/performanceMonitor.js';
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+    <div>Loading...</div>
+  </div>
+);
 
 // Phase 2.3: Create optimized QueryClient with caching configuration
 const queryClient = createQueryClient();
@@ -43,81 +45,124 @@ window.addEventListener('load', () => {
 
 const router = createBrowserRouter([
   {
-    // id:id++,
-      path: "/jobdetails/:id",
-      element:  <RecoilRoot><JobDetails /></RecoilRoot>
-    },
+    path: "/jobdetails/:id",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <RecoilRoot><JobDetails /></RecoilRoot>
+      </Suspense>
+    )
+  },
   {
-    // id:id++,
-      path: "/jobs",
-      element:  <RecoilRoot><Jobs /></RecoilRoot>
-    },
+    path: "/jobs",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <RecoilRoot><Jobs /></RecoilRoot>
+      </Suspense>
+    )
+  },
   {
-    // Handle trailing slash variant
-      path: "/jobs/",
-      element:  <RecoilRoot><Jobs /></RecoilRoot>
-    },
+    path: "/jobs/",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <RecoilRoot><Jobs /></RecoilRoot>
+      </Suspense>
+    )
+  },
   {
-    // id:id++,
-      path: "/dashboard",
-      element:  <RecoilRoot><Dashboard /></RecoilRoot>,
-     
-    },
+    path: "/dashboard",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <RecoilRoot><Dashboard /></RecoilRoot>
+      </Suspense>
+    )
+  },
   {
-    // id:id++,
-      path: "/home",
-      element:  <RecoilRoot><Home /> </RecoilRoot>,
-     
-    },
+    path: "/home",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <RecoilRoot><Home /></RecoilRoot>
+      </Suspense>
+    )
+  },
   {
     path: "/settings",
-    element: <RecoilRoot><Settings /></RecoilRoot>
-
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <RecoilRoot><Settings /></RecoilRoot>
+      </Suspense>
+    )
   },
   {
     path: "/signupwith/:role",
-    element: <ThirdParty />
-
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ThirdParty />
+      </Suspense>
+    )
   },
   {
     path: "/verify",
-    element: <VerificationScreen />
-
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <VerificationScreen />
+      </Suspense>
+    )
   },
   {
     path: "/createpassword",
-    element: <CreatePassword />
-
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <CreatePassword />
+      </Suspense>
+    )
   },
   {
     path: "/forgotpassword",
-    element: <ForgotPassword />
-
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ForgotPassword />
+      </Suspense>
+    )
   },
   {
     path: "/signin",
-    element:  <RecoilRoot><Signin /></RecoilRoot>
-
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <RecoilRoot><Signin /></RecoilRoot>
+      </Suspense>
+    )
   },
   {
     path: "/csignup/:role",
-    element: <ClientSignup />
-
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ClientSignup />
+      </Suspense>
+    )
   },
   {
     path: "/asignup/:role",
-    element: <AppSignup />
-
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AppSignup />
+      </Suspense>
+    )
   },
   {
     path: "/welcome",
-    element: <Welcome />
-
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <Welcome />
+      </Suspense>
+    )
   },
   {
     path: "/",
-    element: <Flashscreen />
-
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <Flashscreen />
+      </Suspense>
+    )
   },
 ]);
 

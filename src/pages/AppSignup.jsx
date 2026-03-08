@@ -14,7 +14,6 @@ import * as Yup from "yup";
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import { apiService } from "../services/api.js";
 // import { faChevronLeft, faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
-import swal from 'sweetalert';
 
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'

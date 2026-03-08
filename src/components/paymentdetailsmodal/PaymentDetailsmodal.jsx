@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import iconLogo from "../../assets/images/icon-logo.png";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import "./PaymentDetailsmodal.css";
 import logoSm from "../../assets/images/logo-sm.png";
 import Axios from "axios";
@@ -50,9 +48,13 @@ const PaymentDetailsmodal = ({ payment, jobId }) => {
     };
 
     // PDF invoice download handler with design matching the modal
-    const handleDownloadInvoice = () => {
+    const handleDownloadInvoice = async () => {
         const currentPayment = payment || paymentDetails;
         if (!currentPayment) return;
+
+        // Dynamically import jsPDF to reduce initial bundle size
+        const { default: jsPDF } = await import('jspdf');
+        await import('jspdf-autotable');
 
         const doc = new jsPDF({
             orientation: 'portrait',

@@ -10,7 +10,6 @@ import * as Yup from "yup";
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import Axios from "axios";
 // import { faChevronLeft, faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
-import swal from 'sweetalert';
 import { getApiUrl } from '../config.js';
 
 import Swal from 'sweetalert2'
