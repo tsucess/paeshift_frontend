@@ -11,7 +11,7 @@ import { VscBellDot } from "react-icons/vsc";
 
 
 import Stars from "../../assets/images/stars.png";
-import { getApiUrl } from "../../config";
+import { getApiUrl, API_BASE_URL } from "../../config";
 
 import getCurrentUser from "../../auth/getCurrentUser";
 import timeToSeconds from "../../auth/timeToSeconds";
