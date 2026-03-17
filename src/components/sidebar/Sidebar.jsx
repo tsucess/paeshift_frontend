@@ -9,7 +9,7 @@ import ProfileImage from "../../assets/images/profile.png";
 import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { faClose } from "@fortawesome/free-solid-svg-icons/faClose";
 import Axios from "axios";
-import { API_BASE_URL } from "../../config"; // Import API_BASE_URL from config
+import { getApiUrl } from "../../config"; // Import getApiUrl from config
 
 import "./Sidebar.css";
 
@@ -45,7 +45,7 @@ const Sidebar = () => {
         if (!currentUserId) {
           redir("../signin")
         }
-        const response = await Axios.get(`${API_BASE_URL}/accountsapp/whoami/${currentUserId}`);
+        const response = await Axios.get(getApiUrl(`accountsapp/whoami/${currentUserId}`));
         setProfile(response.data);
       } catch (error) {
         console.error("Error fetching user:", error.response?.data || error.message);
@@ -62,7 +62,7 @@ const Sidebar = () => {
     //   user_id: Number(currentUserId)
     // }
  
-    Axios.get(`${API_BASE_URL}/accountsapp/user_profile_pictures_full/?user_id=${currentUserId}`)
+    Axios.get(getApiUrl(`accountsapp/user_profile_pictures_full/?user_id=${currentUserId}`))
       .then(response => {
         setProfileImage(response.data[0].url);
         // handle response
@@ -77,7 +77,7 @@ const Sidebar = () => {
   // HANDLES LOGOUT
   // How does this endpoint know that a user is logged in
   const handleLogout = () => {
-    Axios.post(`${API_BASE_URL}/accountsapp/logout`)
+    Axios.post(getApiUrl(`accountsapp/logout`))
       .then(response => {
         // Clear ALL localStorage data to ensure complete logout
         localStorage.clear();
@@ -106,7 +106,7 @@ const Sidebar = () => {
       new_role: newRole
     }
 
-    Axios.put(`${API_BASE_URL}/accountsapp/switch-role`, curentUserData)
+    Axios.put(getApiUrl(`accountsapp/switch-role`), curentUserData)
       .then(response => {
         localStorage.setItem("user_role", newRole);
         window.location.reload()
@@ -187,7 +187,7 @@ const Sidebar = () => {
             <div className="profile">
               <div className="profile-dp">
                 {/* <img src={ProfileImage} alt="profile" /> */}
-                <img src={`${API_BASE_URL}${profileImage}`} alt="profile" />
+                <img src={`${getApiUrl('')}${profileImage}`} alt="profile" />
               </div>
               <div className="profile-info">
                 <h2>{profile.username}</h2>

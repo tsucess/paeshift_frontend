@@ -11,7 +11,7 @@ import { VscBellDot } from "react-icons/vsc";
 
 
 import Stars from "../../assets/images/stars.png";
-import { getApiUrl, API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 
 import getCurrentUser from "../../auth/getCurrentUser";
 import timeToSeconds from "../../auth/timeToSeconds";
@@ -119,7 +119,7 @@ const Main = () => {
 
 
   const selectedJob = (jobId) => {
-    Axios.get(`${API_BASE_URL}/jobs/${jobId}`)
+    Axios.get(getApiUrl(`jobs/${jobId}`))
       .then(
         (response) => {
           setSelectedJobData(response.data);
@@ -130,7 +130,7 @@ const Main = () => {
 
 
   const handleDelete = (job_id) => {
-    Axios.delete(`${API_BASE_URL}/jobs/job/delete/${job_id}`)
+    Axios.delete(getApiUrl(`jobs/job/delete/${job_id}`))
       .then((response) => {
         const message = response.data.message;
         notifySuccess(message);

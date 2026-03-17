@@ -31,7 +31,7 @@ import { showSuccessToast, showErrorToast, toastContainerProps } from '../../uti
 import { format, parseISO, isToday, isYesterday, subDays, isThisWeek, isThisMonth } from 'date-fns';
 import WithdrawModal from "../withdrawmodal/WithdrawModal";
 import AccountModal from "../accountModal/AccountModal";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 
 const formatDate = (dateString) => {
   const date = parseISO(dateString);
@@ -152,7 +152,7 @@ const Main = () => {
   // React Query: Fetch all jobs for client-side pagination
   const fetchAllJobs = async () => {
     // Fetch all jobs without server-side pagination since we're doing client-side pagination
-    const { data } = await Axios.get(`${API_BASE_URL}/jobs/alljobsmatched?user_id=${currentUserId}&page=1&page_size=100`);
+    const { data } = await Axios.get(getApiUrl(`jobs/alljobsmatched?user_id=${currentUserId}&page=1&page_size=100`));
     logger.apiResponse('/jobs/alljobsmatched', data);
 
     const jobsWithDuration = data.jobs.map(job => {
@@ -179,7 +179,7 @@ const Main = () => {
 
   // React Query: Fetch industries
   const fetchIndustries = async () => {
-    const { data } = await Axios.get(`${API_BASE_URL}/jobs/job-industries/`);
+    const { data } = await Axios.get(getApiUrl(`jobs/job-industries/`));
     return data;
   };
   const { data: industries = [], isLoading: loadingIndustries, error: errorIndustries } = useQuery({
@@ -189,7 +189,7 @@ const Main = () => {
 
   // React Query: Fetch saved jobs
   const fetchSavedJobs = async () => {
-    const { data } = await Axios.get(`${API_BASE_URL}/jobs/saved-jobs/${currentUserId}`);
+    const { data } = await Axios.get(getApiUrl(`jobs/saved-jobs/${currentUserId}`));
     return data.saved_jobs;
   };
   const { data: savedJobs = [], isLoading: loadingSavedJobs, error: errorSavedJobs, refetch: refetchSavedJobs } = useQuery({
@@ -211,7 +211,7 @@ const Main = () => {
 
     // GET ACCOUNT DETAILS
     if (currentUserId) {
-      Axios.get(`${API_BASE_URL}/accountsapp/get-account-details?user_id=${currentUserId}`)
+      Axios.get(getApiUrl(`accountsapp/get-account-details?user_id=${currentUserId}`))
         .then((response) => {
           setAccountDetails(response.data)
         })
@@ -236,7 +236,7 @@ const Main = () => {
       job_id: jobID
     }
     try {
-      Axios.post(`${API_BASE_URL}/jobs/save-job/add/`, savejobData)
+      Axios.post(getApiUrl(`jobs/save-job/add/`), savejobData)
         .then((response) => {
           if (response.status === 200) {
             notifySuccess("Job saved successfully");
@@ -472,7 +472,7 @@ const Main = () => {
                             className="prof"
                             src={
                               item.client_profile_pic_url
-                                ? `${API_BASE_URL}${item.client_profile_pic_url}`
+                                ? `${getApiUrl('')}${item.client_profile_pic_url}`
                                 : ProfileImage
                             }
                             alt={`${item.client_first_name} ${item.client_last_name}`}

@@ -27,7 +27,7 @@ import { showSuccessToast, showErrorToast, toastContainerProps } from '../../uti
 import { format, parseISO, isToday, isYesterday, subDays, isThisWeek, isThisMonth } from 'date-fns';
 import WithdrawModal from "../withdrawmodal/WithdrawModal";
 import AccountModal from "../accountModal/AccountModal";
-import { API_BASE_URL } from "../../config.js";
+import { getApiUrl } from "../../config.js";
 
 const formatDate = (dateString) => {
   const date = parseISO(dateString);

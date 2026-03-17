@@ -13,7 +13,7 @@ import "./Notificationmodal.css";
 import Axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { API_BASE_URL } from "../../config.js";
+import { getApiUrl } from "../../config.js";
 
 const Notificationmodal = () => {
     // State management
@@ -85,7 +85,7 @@ const Notificationmodal = () => {
         setIsLoading(true);
         setError(null);
 
-        Axios.get(`${API_BASE_URL}/notifications/${currentUserId}/`)
+        Axios.get(getApiUrl(`notifications/${currentUserId}/`))
             .then((response) => {
                 if (response.data && response.data.data && response.data.data.notifications) {
                     setNotifications(response.data.data.notifications);

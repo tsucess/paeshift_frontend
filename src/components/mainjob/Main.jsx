@@ -46,7 +46,7 @@ import CancelshiftConfirmmodal from "../cancelshiftconfirmmodal/CancelshiftConfi
 import StartshiftSuccessmodal from "../startshiftsuccessmodal/StartshiftSuccessmodal";
 import EndshiftConfirmmodal from "../endshiftconfirmmodal/EndshiftConfirmmodal";
 import EndshiftSuccessmodal from "../endshiftsuccessmodal/EndshiftSuccessmodal";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 
 const formatDate = (dateString) => {
   const date = parseISO(dateString);
@@ -121,7 +121,7 @@ const Main = () => {
 
     try {
       // Get all reviews submitted by the current user (where they are the reviewer)
-      const response = await Axios.get(`${API_BASE_URL}/rating/ratings/reviewer_${currentUserId}/`);
+      const response = await Axios.get(getApiUrl(`rating/ratings/reviewer_${currentUserId}/`));
       if (response.data && response.data.reviews) {
         const feedbackMap = {};
         jobsList.forEach(job => {
@@ -170,7 +170,7 @@ const Main = () => {
   } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
-      const res = await Axios.get(`${API_BASE_URL}/jobs/all-users`);
+      const res = await Axios.get(getApiUrl(`jobs/all-users`));
       return res.data.users;
     },
     staleTime: 5 * 60 * 1000,
@@ -189,7 +189,7 @@ const Main = () => {
     queryKey: ['account-details', currentUserId],
     queryFn: async () => {
       if (currentUserId && currentUserRole === "applicant") {
-        const res = await Axios.get(`${API_BASE_URL}/accountsapp/get-account-details?user_id=${currentUserId}`);
+        const res = await Axios.get(getApiUrl(`accountsapp/get-account-details?user_id=${currentUserId}`));
         return res.data;
       }
       return null;
@@ -222,8 +222,8 @@ const Main = () => {
       }
       // Fetch all jobs without server-side pagination since we're doing client-side pagination
       let baseUrl = currentUserRole === "applicant"
-        ? `${API_BASE_URL}/jobs/alljobsmatched?user_id=${currentUserId}&page=1&page_size=100&bypass_cache=true`
-        : `${API_BASE_URL}/jobs/clients/clientjobs/${currentUserId}?page=1&page_size=100&bypass_cache=true`;
+        ? getApiUrl(`jobs/alljobsmatched?user_id=${currentUserId}&page=1&page_size=100&bypass_cache=true`)
+        : getApiUrl(`jobs/clients/clientjobs/${currentUserId}?page=1&page_size=100&bypass_cache=true`);
       const res = await Axios.get(baseUrl);
       const jobsWithDuration = res.data.jobs.map(job => {
         const jobStarts = timeToSeconds(job.start_time_str);
@@ -533,7 +533,7 @@ const Main = () => {
                           <span>
                             <img
                               className="prof"
-                              src={item.client_profile_pic_url ? `${API_BASE_URL}${item.client_profile_pic_url}` : ProfileImage}
+                              src={item.client_profile_pic_url ? `${getApiUrl('')}${item.client_profile_pic_url}` : ProfileImage}
                               alt="profile"
                               onError={e => { e.target.onerror = null; e.target.src = ProfileImage; }}
                             />

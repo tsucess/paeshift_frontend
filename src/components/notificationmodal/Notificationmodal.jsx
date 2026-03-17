@@ -24,7 +24,7 @@ import Axios from "axios";
 
 
 import { format, parseISO, isToday, isYesterday, startOfDay } from 'date-fns';
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 
 
 
@@ -60,7 +60,7 @@ const Notificationmodal = ({ setNewNotification, setReadCount, notificationData,
     const fetchNotifications = async () => {
         if (!currentUserId) return [];
         try {
-            const { data } = await Axios.get(`${API_BASE_URL}/notifications/${currentUserId}/`);
+            const { data } = await Axios.get(getApiUrl(`notifications/${currentUserId}/`));
             return data?.data?.notifications || [];
         } catch (error) {
             // If unauthorized, user might be logged out
