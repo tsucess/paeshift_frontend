@@ -126,13 +126,23 @@ const Signup = () => {
                         }, 2000);
                       }
                       else if (response.data.message === "success") {
-                        swal("Registration Successful!", " ", "success", { button: false, timer: 1500 });
+                        AppSwal.fire({
+                          title: "Registration Successful!",
+                          text: " ",
+                          icon: "success",
+                          showConfirmButton: false,
+                          timer: 1500
+                        });
                         setTimeout(() => {
                           redir("../signin");
                         }, 1500);
                       }
                       else {
-                        swal("Registration Failed!", response.data.error || "Something went wrong", "error");
+                        AppSwal.fire({
+                          title: "Registration Failed!",
+                          text: response.data.error || "Something went wrong",
+                          icon: "error"
+                        });
                       }
                     } catch (error) {
                       logger.error("Signup error:", error);
@@ -152,7 +162,11 @@ const Signup = () => {
                         errorMessage = error.message;
                       }
 
-                      swal("Registration Failed!", errorMessage, "error");
+                      AppSwal.fire({
+                        title: "Registration Failed!",
+                        text: errorMessage,
+                        icon: "error"
+                      });
                     } finally {
                       setIsLoading(false);
                     }

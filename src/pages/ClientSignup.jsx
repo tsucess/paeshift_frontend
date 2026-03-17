@@ -107,7 +107,13 @@ const ClientSignup = () => {
                       Axios.post(`${baseURL}`, userdata)
                         .then((response) => {
                           //   setUser({isLoggedIn: true, data: response.data});
-                          swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
+                          AppSwal.fire({
+                            title: "Registeration Successful!",
+                            text: " ",
+                            icon: "success",
+                            showConfirmButton: false,
+                            timer: 1500
+                          });
                           setTimeout(() => {
                             redir("../signin");
                           }, 1500);
@@ -125,7 +131,11 @@ const ClientSignup = () => {
                             errorMessage = error.message;
                           }
 
-                          swal("Registration Failed!", errorMessage, "error");
+                          AppSwal.fire({
+                            title: "Registration Failed!",
+                            text: errorMessage,
+                            icon: "error"
+                          });
                         })
                         .finally(() => {
                           setIsLoading(false);

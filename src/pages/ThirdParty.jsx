@@ -28,12 +28,15 @@ import Axios from "axios";
 
 // import { jwtDecode } from "jwt-decode";
 import { useGoogleLogin } from '@react-oauth/google';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
 
 // REDIRECT URL must be same with URL where the (reactjs-social-login) components is locate
 // MAKE SURE the (reactjs-social-login) components aren't unmounted or destroyed before the ask permission dialog closes
 const REDIRECT_URI = window.location.href;
 
+const AppSwal = withReactContent(Swal);
 
 const ThirdParty = () => {
     const [provider, setProvider] = useState('')
@@ -105,15 +108,33 @@ const ThirdParty = () => {
 
 
                         if (result === "success") {
-                            swal("Registration Successful!", " ", "success", { button: false, timer: 1500 });
+                            AppSwal.fire({
+                              title: "Registration Successful!",
+                              text: " ",
+                              icon: "success",
+                              showConfirmButton: false,
+                              timer: 1500
+                            });
                             redir("../dashboard");
                         }
                         else {
-                            swal("Registration Failed!", " ", "error", { button: false, timer: 1500 })
+                            AppSwal.fire({
+                              title: "Registration Failed!",
+                              text: " ",
+                              icon: "error",
+                              showConfirmButton: false,
+                              timer: 1500
+                            });
                         }
 
                     } else {
-                        swal("User already exit!", " ", "error", { button: false, timer: 1500 })
+                        AppSwal.fire({
+                          title: "User already exit!",
+                          text: " ",
+                          icon: "error",
+                          showConfirmButton: false,
+                          timer: 1500
+                        });
                         // swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
                     }
                     // if unique email allow to signup else dont
