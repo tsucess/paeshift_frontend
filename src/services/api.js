@@ -3,7 +3,7 @@
 // Phase 2.3: Enhanced with performance monitoring and caching
 
 import axios from 'axios';
-import { API_BASE_URL, API_ENDPOINTS } from '../config.js';
+import { getApiBaseUrl } from '../config.js';
 
 // ============================================================================
 // PERFORMANCE MONITORING & CACHING UTILITIES (Phase 2.3)
@@ -83,7 +83,7 @@ export const clearPerformanceMetrics = () => {
 
 // Create axios instance with default configuration
 const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   timeout: 10000, // 10 seconds timeout
   headers: {
     'Content-Type': 'application/json',

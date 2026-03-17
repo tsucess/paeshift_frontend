@@ -3,50 +3,67 @@
 
 // For Vite projects, use import.meta.env
 // Updated 2025-07-31: Configure for local development with PostgreSQL primary and SQLite fallback
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// Get API_BASE_URL at runtime to ensure environment variables are loaded
+export const getApiBaseUrl = () => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!baseUrl) {
+    console.error('VITE_API_BASE_URL environment variable is not set');
+    return '';
+  }
+  return baseUrl;
+};
+
+// For backward compatibility, export as a getter property
+export const API_BASE_URL = getApiBaseUrl();
 
 // Helper function to get API URL - use this in all components
 export const getApiUrl = (endpoint = '') => {
-  const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+  const baseUrl = getApiBaseUrl();
+  if (!baseUrl) {
+    console.error('API_BASE_URL is not configured');
+    return endpoint;
+  }
+  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  return `${baseUrl}${cleanEndpoint}`;
+  return `${cleanBaseUrl}${cleanEndpoint}`;
 };
 
 
 
 // API Endpoints - Build complete URLs using getApiUrl helper to handle trailing slashes
+// Use getter functions to ensure URLs are built at runtime, not at module load time
 export const API_ENDPOINTS = {
   // Authentication
-  LOGIN: getApiUrl('accountsapp/login-simple'),
-  SIGNUP: getApiUrl('accountsapp/signup'),
-  LOGOUT: getApiUrl('accountsapp/logout'),
-  VERIFY_EMAIL: getApiUrl('accountsapp/verify-email'),
-  FORGOT_PASSWORD: getApiUrl('accountsapp/forgot-password'),
-  RESET_PASSWORD: getApiUrl('accountsapp/reset-password'),
+  LOGIN: () => getApiUrl('accountsapp/login-simple'),
+  SIGNUP: () => getApiUrl('accountsapp/signup'),
+  LOGOUT: () => getApiUrl('accountsapp/logout'),
+  VERIFY_EMAIL: () => getApiUrl('accountsapp/verify-email'),
+  FORGOT_PASSWORD: () => getApiUrl('accountsapp/forgot-password'),
+  RESET_PASSWORD: () => getApiUrl('accountsapp/reset-password'),
 
   // Jobs
-  JOBS_ALL: getApiUrl('jobs/all/'),
-  JOBS_CREATE: getApiUrl('jobs/create/'),
+  JOBS_ALL: () => getApiUrl('jobs/all/'),
+  JOBS_CREATE: () => getApiUrl('jobs/create/'),
   JOBS_DETAIL: (id) => getApiUrl(`jobs/${id}/`),
   JOBS_APPLY: (id) => getApiUrl(`jobs/${id}/apply/`),
-  JOBS_SAVE: getApiUrl('jobs/save/'),
-  JOBS_SAVED: getApiUrl('jobs/saved/'),
+  JOBS_SAVE: () => getApiUrl('jobs/save/'),
+  JOBS_SAVED: () => getApiUrl('jobs/saved/'),
 
   // Users
-  ALL_USERS: getApiUrl('jobs/all-users/'),
-  USER_PROFILE: getApiUrl('accountsapp/profile/'),
-  UPDATE_PROFILE: getApiUrl('accountsapp/profile/update/'),
+  ALL_USERS: () => getApiUrl('jobs/all-users/'),
+  USER_PROFILE: () => getApiUrl('accountsapp/profile/'),
+  UPDATE_PROFILE: () => getApiUrl('accountsapp/profile/update/'),
 
   // Applications
-  APPLICATIONS: getApiUrl('jobs/applications/'),
+  APPLICATIONS: () => getApiUrl('jobs/applications/'),
   APPLICATION_STATUS: (id) => getApiUrl(`jobs/applications/${id}/status/`),
 
   // Payments
-  PAYMENTS: getApiUrl('payment/'),
-  PAYMENT_METHODS: getApiUrl('payment/methods/'),
+  PAYMENTS: () => getApiUrl('payment/'),
+  PAYMENT_METHODS: () => getApiUrl('payment/methods/'),
 
   // Notifications
-  NOTIFICATIONS: getApiUrl('notifications/'),
+  NOTIFICATIONS: () => getApiUrl('notifications/'),
   MARK_READ: (id) => getApiUrl(`notifications/${id}/read/`),
 };
 
