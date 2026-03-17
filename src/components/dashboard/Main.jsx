@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import "./Main.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -81,6 +81,15 @@ const Main = () => {
   const [newnotify, setReadCount] = useState("");
 
   const token = localStorage.getItem("access_token");
+
+  // Memoize setter functions to prevent unnecessary re-renders in child components
+  const handleSetNewNotification = useCallback((value) => {
+    setNewNotification(value);
+  }, []);
+
+  const handleSetReadCount = useCallback((value) => {
+    setReadCount(value);
+  }, []);
 
   // Check authentication status in useEffect to avoid early returns
   useEffect(() => {
@@ -496,7 +505,7 @@ const Main = () => {
         </div>
 
         <Jobrequestmodal />
-        <Notificationmodal setNewNotification={setNewNotification} setReadCount={setReadCount} />
+        <Notificationmodal setNewNotification={handleSetNewNotification} setReadCount={handleSetReadCount} />
         <JobPreviewmodal itemData={selectedJobData} handleDelete={handleDelete} setOutJobData={setOutJobData} selectedJob={selectedJob} />
         <Postmodal setOutJobData={setOutJobData} />
         <EditPostmodal formData={selectedJobData} refreshJobs={refreshJobs} />

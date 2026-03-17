@@ -6,6 +6,7 @@ import Axios from "axios";
 // import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
 import { API_BASE_URL } from "../../config";
+import { useGoogleMapsLoaded } from "../../hooks/useGoogleMapsLoaded";
 
 import "./Postmodal.css";
 // import PostJobSuccessmodal from "../postjobsuccessmodal/PostJobSuccessmodal";
@@ -41,6 +42,9 @@ const Postmodal = ({ setOutJobData }) => {
 
   const [address, setAddress] = useState("");
   const [place, setPlace] = useState("");
+
+  // Check if Google Maps API is loaded
+  const isGoogleMapsLoaded = useGoogleMapsLoaded();
 
 
 
@@ -290,40 +294,50 @@ const Postmodal = ({ setOutJobData }) => {
                           Where will the job take place?
                         </label>
                         {/* <GooglePlacesAutocomplete
-                          apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY} 
+                          apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
                         /> */}
 
-
-                        <PlacesAutocomplete
-                          value={address}
-                          onChange={handleChangeAddress}
-                          onSelect={handleSelect}
-                          name="jobLocation"
-                        >
-                          {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
-                            <div>
-                              <Field
-                                id="jobLocation"
-                                {...getInputProps({
-                                  placeholder: 'Enter your job location',
-                                  className: 'form-control',
-                                })}
-                              />
-                              <div className="autocomplete-dropdown">
-                                {loading && <div>Loading...</div>}
-                                {suggestions.map((suggestion) => (
-                                  <div
-                                    key={suggestion.placeId}
-                                    {...getSuggestionItemProps(suggestion)}
-                                    className="suggestion-item"
-                                  >
-                                    {suggestion.description}
-                                  </div>
-                                ))}
+                        {isGoogleMapsLoaded ? (
+                          <PlacesAutocomplete
+                            value={address}
+                            onChange={handleChangeAddress}
+                            onSelect={handleSelect}
+                            name="jobLocation"
+                          >
+                            {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+                              <div>
+                                <Field
+                                  id="jobLocation"
+                                  {...getInputProps({
+                                    placeholder: 'Enter your job location',
+                                    className: 'form-control',
+                                  })}
+                                />
+                                <div className="autocomplete-dropdown">
+                                  {loading && <div>Loading...</div>}
+                                  {suggestions.map((suggestion) => (
+                                    <div
+                                      key={suggestion.placeId}
+                                      {...getSuggestionItemProps(suggestion)}
+                                      className="suggestion-item"
+                                    >
+                                      {suggestion.description}
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          )}
-                        </PlacesAutocomplete>
+                            )}
+                          </PlacesAutocomplete>
+                        ) : (
+                          <Field
+                            id="jobLocation"
+                            name="jobLocation"
+                            className="form-control"
+                            placeholder="Enter your job location"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                          />
+                        )}
 
                         {/* {touched.jobLocation && errors.jobLocation && (
                           <div className="errors">{errors.jobLocation}</div>
