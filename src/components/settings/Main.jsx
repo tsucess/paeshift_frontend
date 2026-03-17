@@ -392,25 +392,13 @@ const Main = () => {
   }
 
 
-  // GET ALL DATA
+  // GET CURRENT USER PROFILE AND ACCOUNT DETAILS ON MOUNT
   useEffect(() => {
     // GET CURRENT USER PROFILE
     getCurrentUser(setProfile);
 
-
     if (currentUserId && currentUserRole === "applicant") {
-      // GET ALL SAVED JOBS
-      Axios.get(`${API_BASE_URL}/jobs/saved-jobs/${currentUserId}`)
-        .then((response) => {
-          // getSavedJobs(response.data.saved_jobs);
-
-        })
-        .catch((error) => console.error(error));
-    }
-
-
-    // GET ACCOUNT DETAILS (only for applicants)
-    if (currentUserId && currentUserRole === "applicant") {
+      // GET ACCOUNT DETAILS (only for applicants)
       Axios.get(`${API_BASE_URL}/accountsapp/get-account-details?user_id=${currentUserId}`)
         .then((response) => {
           setAccountDetails(response.data)
@@ -420,9 +408,20 @@ const Main = () => {
             console.log(error.response.data.error);
           }
         });
-    } else {
-      console.warn('Skipping account details request: user is not applicant or user_id missing.');
     }
+
+    // Fetch profile image
+    Axios.get(`${API_BASE_URL}/accountsapp/user_profile_pictures_full/?user_id=${currentUserId}`)
+      .then(response => {
+        setProfileImage(response.data[0].url);
+      })
+      .catch(error => console.error("Profile Image error:", error));
+
+  }, [currentUserId, currentUserRole]);
+
+  // FETCH DATA BASED ON ACTIVE TAB
+  useEffect(() => {
+    if (!currentUserId) return;
 
     if (activeTab === 3) {
       fetchAllJobs();
@@ -432,7 +431,6 @@ const Main = () => {
     if (activeTab === 4) {
       Axios.get(`${API_BASE_URL}/notifications/${currentUserId}/settings`)
         .then((response) => {
-
           // Map API response to form data
           if (response.data && response.data.data) {
             const notificationData = response.data.data;
@@ -458,14 +456,13 @@ const Main = () => {
           notifyError("Failed to load notification settings");
         });
     }
+
     if (activeTab === 2) {
       Axios.get(`${API_BASE_URL}/payment/users/${currentUserId}/wallet/transactions`)
         .then((response) => {
           if (response.data && response.data.data.results) {
             setTransactions(response.data.data.results);
           }
-
-
         })
         .catch((error) => {
           console.error("Error fetching Transactions:", error);
@@ -473,21 +470,18 @@ const Main = () => {
         });
     }
 
-
     // Fetch payments when tab changes to Invoice
     if (activeTab === 9) {
-
       Axios.get(`${API_BASE_URL}/payment/users/${currentUserId}/payments`)
         .then((response) => {
           if (response.data && response.data.data.results) {
             setPayments(response.data.data.results);
-        }
+          }
         })
         .catch((error) => {
           console.error("Error fetching payments:", error);
           notifyError("Failed to load payment data");
         });
-
     }
 
     // Fetch reviews when tab changes to Ratings & Reviews
@@ -495,15 +489,7 @@ const Main = () => {
       fetchReviews();
     }
 
-    Axios.get(`${API_BASE_URL}/accountsapp/user_profile_pictures_full/?user_id=${currentUserId}`)
-      .then(response => {
-        setProfileImage(response.data[0].url);
-        // handle response
-      })
-      .catch(error => console.error("Profile Image error:", error));
-
-
-  }, [activeTab])
+  }, [activeTab, currentUserId])
 
 
   const handleReadReview = (reviewId, currentUserId) => {
@@ -1384,21 +1370,21 @@ const Main = () => {
                                 {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
                                 <div className="mb-2">
                                   <span className="visibility">
-                                    <Field type={show} name="oldpassword" id="oldpassword" className="form-control" placeholder="Old Password" />
+                                    <Field type={show} name="oldpassword" id="oldpassword" className="form-control" placeholder="Old Password" autoComplete="current-password" />
                                     <FontAwesomeIcon icon={show === "password" ? faEye : faEyeSlash} onClick={() => setShow(show === "password" ? "text" : "password")} className='eye-icon' />
                                   </span>
                                   {touched.oldpassword && errors.oldpassword && (<div className="errors">{errors.oldpassword}</div>)}
                                 </div>
                                 <div className="mb-2">
                                   <span className="visibility">
-                                    <Field type={show1} name="newpassword" id="password" className="form-control" placeholder="New Password" />
+                                    <Field type={show1} name="newpassword" id="password" className="form-control" placeholder="New Password" autoComplete="new-password" />
                                     <FontAwesomeIcon icon={show1 === "password" ? faEye : faEyeSlash} onClick={() => setShow1(show1 === "password" ? "text" : "password")} className='eye-icon' />
                                   </span>
                                   {touched.newpassword && errors.newpassword && (<div className="errors">{errors.newpassword}</div>)}
                                 </div>
                                 <div className="mb-2" >
                                   <span className="visibility">
-                                    <Field type={show2} name="confirmPassword" id="confirmPassword" className="form-control" placeholder="Confirm Password" />
+                                    <Field type={show2} name="confirmPassword" id="confirmPassword" className="form-control" placeholder="Confirm Password" autoComplete="new-password" />
                                     <FontAwesomeIcon icon={show2 === "password" ? faEye : faEyeSlash} onClick={() => setShow2(show2 === "password" ? "text" : "password")} className='eye-icon' />
                                   </span>
                                   {touched.confirmPassword && errors.confirmPassword && (<div className="errors">{errors.confirmPassword}</div>)}
