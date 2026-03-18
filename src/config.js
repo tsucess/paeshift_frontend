@@ -13,8 +13,8 @@ export const getApiBaseUrl = () => {
   return baseUrl;
 };
 
-// For backward compatibility, export as a getter property
-export const API_BASE_URL = getApiBaseUrl();
+// Note: API_BASE_URL is no longer exported as a static value to avoid module load time evaluation
+// Use getApiUrl() or getApiBaseUrl() instead for runtime evaluation
 
 // Helper function to get API URL - use this in all components
 export const getApiUrl = (endpoint = '') => {

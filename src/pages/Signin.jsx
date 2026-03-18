@@ -29,13 +29,14 @@ import iapple from "../assets/images/icon-apple.png";
 // const AppSwal = withReactContent(Swal);
 
 // Centralized API endpoints using getApiUrl helper to handle trailing slashes
+// Use getter functions to ensure URLs are built at runtime, not at module load time
 export const API_ENDPOINTS = {
-  SOCIAL_AUTH: getApiUrl('accountsapp/social/google'),
-  LOGIN: getApiUrl('accountsapp/login-simple'),
-  ALL_USERS: getApiUrl('jobs/all-users'),
-  CONNECT_SOCIAL: getApiUrl('accountsapp/social/connect-social'),
-  CHECK_SOCIAL_ACCOUNT: getApiUrl('accountsapp/social/check-social-account'),
-  DIRECT_SOCIAL_LOGIN: getApiUrl('accountsapp/social/direct-social-login')
+  SOCIAL_AUTH: () => getApiUrl('accountsapp/social/google'),
+  LOGIN: () => getApiUrl('accountsapp/login-simple'),
+  ALL_USERS: () => getApiUrl('jobs/all-users'),
+  CONNECT_SOCIAL: () => getApiUrl('accountsapp/social/connect-social'),
+  CHECK_SOCIAL_ACCOUNT: () => getApiUrl('accountsapp/social/check-social-account'),
+  DIRECT_SOCIAL_LOGIN: () => getApiUrl('accountsapp/social/direct-social-login')
 };
 
 // REDIRECT URL for social login components
@@ -256,7 +257,7 @@ const Signin = () => {
       // 2. Check if the user exists in the system first
       try {
         logger.info("Checking if user exists:", email);
-        const checkUserResponse = await axios.get(API_ENDPOINTS.ALL_USERS);
+        const checkUserResponse = await axios.get(API_ENDPOINTS.ALL_USERS());
         const usersArray = checkUserResponse.data.users || checkUserResponse.data;
         const userExists = usersArray.some(user => user.email === email);
 
@@ -291,7 +292,7 @@ const Signin = () => {
 
             try {
               const directLoginResponse = await axios.post(
-                API_ENDPOINTS.DIRECT_SOCIAL_LOGIN,
+                API_ENDPOINTS.DIRECT_SOCIAL_LOGIN(),
                 directLoginPayload,
                 { timeout: 10000 }
               );
@@ -320,7 +321,7 @@ const Signin = () => {
                   };
 
                   const result = await axios.post(
-                    API_ENDPOINTS.SOCIAL_AUTH,
+                    API_ENDPOINTS.SOCIAL_AUTH(),
                     socialPayload,
                     {
                       timeout: 10000,
@@ -408,7 +409,7 @@ const Signin = () => {
               logger.info("Trying social auth with payload:", socialPayload);
 
               const result = await axios.post(
-                API_ENDPOINTS.SOCIAL_AUTH,
+                API_ENDPOINTS.SOCIAL_AUTH(),
                 socialPayload,
                 {
                   timeout: 10000,
@@ -726,7 +727,7 @@ const Signin = () => {
     try {
       logger.info("Attempting login with:", { email: values.email });
 
-      const response = await axios.post(API_ENDPOINTS.LOGIN, userData);
+      const response = await axios.post(API_ENDPOINTS.LOGIN(), userData);
       logger.info("Login response:", response.data);
 
       // Check if verification is required
@@ -777,7 +778,7 @@ const Signin = () => {
             logger.info("Connecting Google account with payload:", connectPayload);
 
             // Call the API to connect the Google account
-            const connectResponse = await axios.post(API_ENDPOINTS.CONNECT_SOCIAL, connectPayload, {
+            const connectResponse = await axios.post(API_ENDPOINTS.CONNECT_SOCIAL(), connectPayload, {
               headers: {
                 Authorization: `Bearer ${access_token}`
               }
