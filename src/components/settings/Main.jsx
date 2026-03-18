@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash, faServer, faUser, faUserGroup, faSearch, faBars, faKey, faBarsProgress, faChevronRight, faUserPen, faWallet, faClipboard, faStar, faCamera, faClose, faBookBible, faBook, faBank } from "@fortawesome/free-solid-svg-icons";
@@ -34,7 +34,7 @@ import { ToastContainer } from 'react-toastify';
 import { showSuccessToast, showErrorToast, toastContainerProps } from '../../utils/toastConfig';
 import { icon } from "@fortawesome/fontawesome-svg-core";
 import AccountModal from "../accountModal/AccountModal";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl, getApiBaseUrl } from "../../config";
 
 
 
@@ -264,14 +264,20 @@ const Main = () => {
   const [newnotify, setReadCount] = useState("");
   const [accountDetails, setAccountDetails] = useState("");
 
+  // Memoize callbacks to prevent infinite loops in child components
+  const handleSetNewNotification = useCallback((count) => {
+    setNewNotification(count);
+  }, []);
 
-
+  const handleSetReadCount = useCallback((count) => {
+    setReadCount(count);
+  }, []);
 
   const fetchReviews = () => {
     setReviewsLoading(true);
     setReviewsError(null);
-    // Axios.get(`${API_BASE_URL}/rating/ratings/reviewed/${currentUserId}`)
-    Axios.get(`${API_BASE_URL}/rating/reviews/${currentUserId}`)
+    // Axios.get(getApiUrl(`rating/ratings/reviewed/${currentUserId}`))
+    Axios.get(getApiUrl(`rating/reviews/${currentUserId}`))
       .then((response) => {
         // setReviews(response.data.results);
         setReviews(response.data.data.reviews);
@@ -351,7 +357,7 @@ const Main = () => {
       email_settings_changes: formData.emailsettings
     };
 
-    Axios.put(`${API_BASE_URL}/notifications/notifications/${currentUserId}/settings`, apiData)
+    Axios.put(getApiUrl(`notifications/notifications/${currentUserId}/settings`), apiData)
       .then((response) => {
         notifySuccess("Notification settings updated successfully!");
       })
@@ -367,7 +373,7 @@ const Main = () => {
 
   const fetchSavedJobs = () => {
     if (currentUserId && currentUserRole === "applicant") {
-      Axios.get(`${API_BASE_URL}/jobs/saved-jobs/${currentUserId}`)
+      Axios.get(getApiUrl(`jobs/saved-jobs/${currentUserId}`))
         .then((response) => {
           const savedJobIds = response.data.saved_jobs.map(eachjob => eachjob.job.id);
           getSavedJobs(savedJobIds);
@@ -378,7 +384,7 @@ const Main = () => {
 
   const fetchAllJobs = () => {
 
-    Axios.get(`${API_BASE_URL}/jobs/alljobsmatched?user_id=${userId}`)
+    Axios.get(getApiUrl(`jobs/alljobsmatched?user_id=${userId}`))
       .then((response) => {
         const jobsWithDuration = response.data.jobs.map(job => {
           const jobStarts = timeToSeconds(job.start_time_str);
@@ -399,7 +405,7 @@ const Main = () => {
 
     if (currentUserId && currentUserRole === "applicant") {
       // GET ACCOUNT DETAILS (only for applicants)
-      Axios.get(`${API_BASE_URL}/accountsapp/get-account-details?user_id=${currentUserId}`)
+      Axios.get(getApiUrl(`accountsapp/get-account-details?user_id=${currentUserId}`))
         .then((response) => {
           setAccountDetails(response.data)
         })
@@ -411,7 +417,7 @@ const Main = () => {
     }
 
     // Fetch profile image
-    Axios.get(`${API_BASE_URL}/accountsapp/user_profile_pictures_full/?user_id=${currentUserId}`)
+    Axios.get(getApiUrl(`accountsapp/user_profile_pictures_full/?user_id=${currentUserId}`))
       .then(response => {
         setProfileImage(response.data[0].url);
       })
@@ -429,7 +435,7 @@ const Main = () => {
     }
 
     if (activeTab === 4) {
-      Axios.get(`${API_BASE_URL}/notifications/${currentUserId}/settings`)
+      Axios.get(getApiUrl(`notifications/${currentUserId}/settings`))
         .then((response) => {
           // Map API response to form data
           if (response.data && response.data.data) {
@@ -458,7 +464,7 @@ const Main = () => {
     }
 
     if (activeTab === 2) {
-      Axios.get(`${API_BASE_URL}/payment/users/${currentUserId}/wallet/transactions`)
+      Axios.get(getApiUrl(`payment/users/${currentUserId}/wallet/transactions`))
         .then((response) => {
           if (response.data && response.data.data.results) {
             setTransactions(response.data.data.results);
@@ -472,7 +478,7 @@ const Main = () => {
 
     // Fetch payments when tab changes to Invoice
     if (activeTab === 9) {
-      Axios.get(`${API_BASE_URL}/payment/users/${currentUserId}/payments`)
+      Axios.get(getApiUrl(`payment/users/${currentUserId}/payments`))
         .then((response) => {
           if (response.data && response.data.data.results) {
             setPayments(response.data.data.results);
@@ -491,6 +497,25 @@ const Main = () => {
 
   }, [activeTab, currentUserId])
 
+  // Fetch unread notification count once on mount
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const { data } = await Axios.get(getApiUrl(`notifications/${currentUserId}/`));
+        const notifications = data?.data?.notifications || [];
+        const unreadCount = notifications.filter(n => !n.is_read).length;
+        setReadCount(unreadCount);
+        localStorage.setItem(`unread_notifications_${currentUserId}`, unreadCount);
+      } catch (error) {
+        console.error("Error fetching unread notifications:", error);
+      }
+    };
+
+    fetchUnreadCount();
+    // Only fetch once on mount, don't poll
+  }, [currentUserId]);
 
   const handleReadReview = (reviewId, currentUserId) => {
     const reviewData = {
@@ -498,7 +523,7 @@ const Main = () => {
       review_id: reviewId
     }
 
-    Axios.post(`${API_BASE_URL}/rating/ratings/mark-read/`, reviewData)
+    Axios.post(getApiUrl(`rating/ratings/mark-read/`), reviewData)
       .then((response) => {
         if (response.status === 200) {
           notifySuccess("Review read successfully")
@@ -531,7 +556,7 @@ const Main = () => {
       job_id: selectedJobId
     };
 
-    Axios.delete(`${API_BASE_URL}/jobs/unsave-job/`, { data: payload })
+    Axios.delete(getApiUrl(`jobs/unsave-job/`), { data: payload })
       .then((response) => {
         if (response.status === 200) {
           fetchSavedJobs(); // refresh saved jobs
@@ -716,7 +741,7 @@ const Main = () => {
           <div className="col-12 col-md-4 col-xl-3 m-0 py-3 profile_data">
             <div className="profile_info">
               <span>
-                <img className="prof" src={`${API_BASE_URL}${profileImage}`} alt="profile" />
+                <img className="prof" src={`${getApiBaseUrl()}${profileImage}`} alt="profile" />
               </span>
               <span>
                 <h4>{profile.first_name} {profile.last_name}</h4>
@@ -776,7 +801,7 @@ const Main = () => {
               <div className="profile_wrapper">
                 <img
                   className="prof"
-                  src={`${API_BASE_URL}${profileImage}`}
+                  src={`${getApiBaseUrl()}${profileImage}`}
 
                   alt="profile"
                 />
@@ -813,7 +838,7 @@ const Main = () => {
 
                   try {
                     const response = await Axios.post(
-                      `${API_BASE_URL}/accountsapp/profile/update`,
+                      getApiUrl(`accountsapp/profile/update`),
                       formData,
                       {
                         headers: {
@@ -822,9 +847,21 @@ const Main = () => {
                       }
                     );
                     notifySuccess("Profile updated successfully");
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 2000);
+
+                    // Update local state with new profile data instead of reloading
+                    if (response.data && response.data.data) {
+                      const updatedProfile = response.data.data;
+                      setProfile(prev => ({
+                        ...prev,
+                        first_name: updatedProfile.first_name || prev.first_name,
+                        last_name: updatedProfile.last_name || prev.last_name,
+                      }));
+
+                      // Update profile image if returned
+                      if (updatedProfile.profile_picture_url) {
+                        setProfileImage(updatedProfile.profile_picture_url);
+                      }
+                    }
                   } catch (error) {
                     console.error(error.response?.data);
                     notifyError(error.response?.data?.message || "Profile update failed");
@@ -1056,7 +1093,7 @@ const Main = () => {
                           <div className="card_top">
                             <span className="profile_info">
                               <span>
-                                <img className="prof" src={`${API_BASE_URL}${profileImage}`} alt="profile" />
+                                <img className="prof" src={`${getApiBaseUrl()}${profileImage}`} alt="profile" />
                               </span>
                               <span>
                                 <h4>{item.client_first_name} {item.client_last_name}</h4>
@@ -1290,7 +1327,7 @@ const Main = () => {
                       <div className="card_top">
                         <span className="profile_info">
                           <span>
-                            <img className="prof" src={`${API_BASE_URL}${item.reviewer_avatar}` || ProfileImage} alt="profile" />
+                            <img className="prof" src={`${getApiBaseUrl()}${item.reviewer_avatar}` || ProfileImage} alt="profile" />
                           </span>
                           <span>
                             <h4>{item.reviewer_name}</h4>
@@ -1354,7 +1391,7 @@ const Main = () => {
                                 confirm_password: values.confirmPassword
                               };
 
-                              Axios.post(`${API_BASE_URL}/accountsapp/change-password`, passworddata)
+                              Axios.post(getApiUrl(`accountsapp/change-password`), passworddata)
                                 .then((response) => {
                                   notifySuccess(response.data.message);
                                   // setTimeout(() => {
@@ -1435,7 +1472,7 @@ const Main = () => {
 
 
 
-                      Axios.post(`${API_BASE_URL}/rating/company/feedback/`, feedbackData)
+                      Axios.post(getApiUrl(`rating/company/feedback/`), feedbackData)
                         .then((response) => {
 
                           notifySuccess(`Thank you for your feedback`);
@@ -1550,7 +1587,7 @@ const Main = () => {
         <Walletmodal accountDetails={accountDetails} />
         <WithdrawModal accountDetails={accountDetails} />
         <AccountModal />
-        <Notificationmodal setNewNotification={setNewNotification} setReadCount={setReadCount} />
+        <Notificationmodal />
         <PaymentDetailsmodal payment={selectedPayment} />
       </section >
     </main>

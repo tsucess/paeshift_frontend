@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faServer, faUser, faUserGroup, faSearch, faMapPin, faLocation, faLocationDot, faChevronDown } from "@fortawesome/free-solid-svg-icons";
@@ -91,8 +91,14 @@ const Main = () => {
   const [newNotification, setNewNotification] = useState("");
   const [newnotify, setReadCount] = useState("");
 
+  // Memoize callbacks to prevent infinite loops in child components
+  const handleSetNewNotification = useCallback((count) => {
+    setNewNotification(count);
+  }, []);
 
-
+  const handleSetReadCount = useCallback((count) => {
+    setReadCount(count);
+  }, []);
 
 
   const notifySuccess = (message) => {
@@ -158,7 +164,7 @@ const Main = () => {
   const fetchAllJobs = () => {
 
     // Update GET request to use query parameters for /jobs/alljobsmatched
-    Axios.get(`${API_BASE_URL}/jobs/alljobsmatched?user_id=${currentUserId}`)
+    Axios.get(getApiUrl(`/jobs/alljobsmatched?user_id=${currentUserId}`))
       .then((response) => {
         const jobsWithDuration = response.data.jobs.map(job => {
           const jobStarts = timeToSeconds(job.start_time_str);
@@ -197,7 +203,25 @@ const Main = () => {
 
   }, [])
 
+  // Fetch unread notification count once on mount
+  useEffect(() => {
+    if (!currentUserId) return;
 
+    const fetchUnreadCount = async () => {
+      try {
+        const { data } = await Axios.get(getApiUrl(`notifications/${currentUserId}/`));
+        const notifications = data?.data?.notifications || [];
+        const unreadCount = notifications.filter(n => !n.is_read).length;
+        setReadCount(unreadCount);
+        localStorage.setItem(`unread_notifications_${currentUserId}`, unreadCount);
+      } catch (error) {
+        console.error("Error fetching unread notifications:", error);
+      }
+    };
+
+    fetchUnreadCount();
+    // Only fetch once on mount, don't poll
+  }, [currentUserId]);
 
 
 
@@ -452,7 +476,7 @@ const Main = () => {
         <Walletmodal />
         <WithdrawModal />
         <AccountModal />
-        <Notificationmodal setNewNotification={setNewNotification} setReadCount={setReadCount} />
+        <Notificationmodal />
       </section>
     </main >
   )

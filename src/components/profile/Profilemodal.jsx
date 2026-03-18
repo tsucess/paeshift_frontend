@@ -7,7 +7,7 @@ import { faStar } from "@fortawesome/free-solid-svg-icons";
 import Axios from "axios";
 import ProfileImage from "../../assets/images/profile.png"
 import "./Profilemodal.css";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl, getApiBaseUrl } from "../../config";
 
 import timeToSeconds from "../../auth/timeToSeconds";
 import ConvertHoursToTime from "../../auth/ConvertHoursToTime";
@@ -55,7 +55,7 @@ const Profilemodal = ({ clientData, savedJob, }) => {
     }
 
     // Fetch user data for this client
-    Axios.get(`${API_BASE_URL}/accountsapp/whoami/${clientId}`)
+    Axios.get(getApiUrl(`accountsapp/whoami/${clientId}`))
       .then((response) => setClientDetails(response.data))
       .catch((error) => console.error("Error fetching client details:", error));
 
@@ -66,7 +66,7 @@ const Profilemodal = ({ clientData, savedJob, }) => {
   const fetchReviews = (clientId) => {
     setReviewsLoading(true);
     setReviewsError(null);
-    Axios.get(`${API_BASE_URL}/rating/reviews/${clientId}`)
+    Axios.get(getApiUrl(`rating/reviews/${clientId}`))
       .then((response) => {
         // setReviews(response.data.results);
         setReviews(response.data.data.reviews);
@@ -93,7 +93,7 @@ const Profilemodal = ({ clientData, savedJob, }) => {
     setLoading(true);
     setError(null);
 
-    Axios.get(`${API_BASE_URL}/jobs/clients/clientjobs/${currentUserId}`)
+    Axios.get(getApiUrl(`jobs/clients/clientjobs/${currentUserId}`))
       .then((response) => {
         if (!response.data || !response.data.jobs) {
           console.error("Invalid response format:", response.data);
@@ -146,7 +146,7 @@ const Profilemodal = ({ clientData, savedJob, }) => {
                   <div className="profile_wrapper">
                     <img
                       className=""
-                      src={clientDetails.profile_pic_url ? `${API_BASE_URL}${clientDetails.profile_pic_url}` : ProfileImage}
+                      src={clientDetails.profile_pic_url ? `${getApiBaseUrl()}${clientDetails.profile_pic_url}` : ProfileImage}
                       alt="profile"
                       onError={e => { e.target.onerror = null; e.target.src = ProfileImage; }}
                     />
@@ -190,7 +190,7 @@ const Profilemodal = ({ clientData, savedJob, }) => {
                         <span>
                           <img
                             className="prof"
-                            src={item.client_profile_pic_url ? `${API_BASE_URL}${item.client_profile_pic_url}` : ProfileImage}
+                            src={item.client_profile_pic_url ? `${getApiBaseUrl()}${item.client_profile_pic_url}` : ProfileImage}
                             alt="profile"
                             onError={e => { e.target.onerror = null; e.target.src = ProfileImage; }}
                           />
@@ -247,7 +247,7 @@ const Profilemodal = ({ clientData, savedJob, }) => {
                           <span>
                             <img
                               className="prof"
-                              src={item.reviewer_avatar ? `${API_BASE_URL}${item.reviewer_avatar}` : ProfileImage}
+                              src={item.reviewer_avatar ? `${getApiBaseUrl()}${item.reviewer_avatar}` : ProfileImage}
                               alt="profile"
                               onError={e => { e.target.onerror = null; e.target.src = ProfileImage; }}
                             />

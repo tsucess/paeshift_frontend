@@ -5,7 +5,7 @@ import Axios from "axios";
 // import { GoogleMap, useJsApiLoader, Autocomplete } from '@react-google-maps/api'
 // import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 import { useGoogleMapsLoaded } from "../../hooks/useGoogleMapsLoaded";
 
 import "./Postmodal.css";
@@ -85,7 +85,7 @@ const Postmodal = ({ setOutJobData }) => {
   useEffect(() => {
     const fetchIndustries = async () => {
       try {
-        const response = await Axios.get(`${API_BASE_URL}/jobs/job-industries/`);
+        const response = await Axios.get(getApiUrl(`jobs/job-industries/`));
         setIndustries(response.data);
       } catch (error) {
         console.error("Error fetching industries:", error);
@@ -94,7 +94,7 @@ const Postmodal = ({ setOutJobData }) => {
 
     const fetchSubcategories = async () => {
       try {
-        const response = await Axios.get(`${API_BASE_URL}/jobs/job-subcategories/`);
+        const response = await Axios.get(getApiUrl(`jobs/job-subcategories/`));
         setSubcategories(response.data);
       } catch (error) {
         console.error("Error fetching subcategories:", error);
@@ -232,7 +232,7 @@ const Postmodal = ({ setOutJobData }) => {
 
                 try {
                   // First create the job
-                  const response = await Axios.post(`${API_BASE_URL}/jobs/jobs/create-job`, jobData, {
+                  const response = await Axios.post(getApiUrl(`jobs/jobs/create-job`), jobData, {
                     headers: {
                       'Content-Type': 'application/json',
                     }

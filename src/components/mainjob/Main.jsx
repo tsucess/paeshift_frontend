@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Jobs.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -88,6 +88,15 @@ const Main = () => {
 
   const [newNotification, setNewNotification] = useState(null);
   const [newnotify, setReadCount] = useState(0);
+
+  // Memoize callbacks to prevent infinite loops in child components
+  const handleSetNewNotification = useCallback((count) => {
+    setNewNotification(count);
+  }, []);
+
+  const handleSetReadCount = useCallback((count) => {
+    setReadCount(count);
+  }, []);
 
   // Pagination state - moved before early return
   const [currentPage, setCurrentPage] = useState(1);
@@ -251,6 +260,26 @@ const Main = () => {
       checkFeedbackStatusForJobs(jobsData);
     }
   }, [jobsData]);
+
+  // Fetch unread notification count once on mount
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const { data } = await Axios.get(getApiUrl(`notifications/${currentUserId}/`));
+        const notifications = data?.data?.notifications || [];
+        const unreadCount = notifications.filter(n => !n.is_read).length;
+        setReadCount(unreadCount);
+        localStorage.setItem(`unread_notifications_${currentUserId}`, unreadCount);
+      } catch (error) {
+        console.error("Error fetching unread notifications:", error);
+      }
+    };
+
+    fetchUnreadCount();
+    // Only fetch once on mount, don't poll
+  }, [currentUserId]);
 
   // Apply client-side filtering and searching
   const filteredJobs = React.useMemo(() => {
@@ -700,7 +729,7 @@ const Main = () => {
       <Walletmodal accountDetails={accountDetails} />
       {accountDetails && <WithdrawModal accountDetails={accountDetails} />}
       <AccountModal />
-      <Notificationmodal setNewNotification={setNewNotification} setReadCount={setReadCount} />
+      <Notificationmodal />
       <ShareLocationModal />
       {/* Feedback Modals - Always render both to avoid hook count changes */}
       <Feedbackmodal

@@ -9,7 +9,7 @@ import { showSuccessToast, showErrorToast } from '../../utils/toastConfig';
 import logger from "../../utils/logger";
 
 import Axios from "axios";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
@@ -50,7 +50,7 @@ const Feedbackmodal = ({ role, jobId, receiverIds, allUsers, modalId = "feedback
         setIsCheckingFeedback(true);
         try {
             // Get all reviews submitted by the current user (where they are the reviewer)
-            const response = await Axios.get(`${API_BASE_URL}/rating/ratings/reviewer_${currentUserId}/`);
+            const response = await Axios.get(getApiUrl(`rating/ratings/reviewer_${currentUserId}/`));
             if (response.data && response.data.reviews) {
                 const existingFeedback = response.data.reviews.find(review =>
                     review.job_id === jobId
@@ -70,7 +70,7 @@ const Feedbackmodal = ({ role, jobId, receiverIds, allUsers, modalId = "feedback
         if (!jobId || !receiverIds ||
             (Array.isArray(receiverIds) && receiverIds.length === 0)) return;
 
-        Axios.get(`${API_BASE_URL}/jobs/${jobId}`)
+        Axios.get(getApiUrl(`jobs/${jobId}`))
             .then((response) => {
                 if (response.data && response.data.applicants_user_ids) {
                     setApplicantUserIds(response.data.applicants_user_ids);
@@ -135,7 +135,7 @@ const Feedbackmodal = ({ role, jobId, receiverIds, allUsers, modalId = "feedback
 
         try {
             logger.info('📤 Sending feedback to API...');
-            const response = await Axios.post(`${API_BASE_URL}/rating/ratings/`, pendingFeedbackData);
+            const response = await Axios.post(getApiUrl(`rating/ratings/`), pendingFeedbackData);
             logger.info('✅ API Response:', response);
 
             if (response.status === 201) {

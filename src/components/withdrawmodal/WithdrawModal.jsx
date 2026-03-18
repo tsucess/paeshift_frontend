@@ -6,7 +6,7 @@ import { Modal, Button, Form, InputGroup } from 'react-bootstrap';
 // import { FaTimes } from 'react-icons/fa';
 // import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import Axios from "axios";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 // import { toast, Bounce, ToastContainer } from 'react-toastify';
 // import Swal from 'sweetalert2';
 // import successIcon from "../../assets/images/success.png";
@@ -124,7 +124,7 @@ const WithdrawModal = ({ accountDetails = {} }) => {
       amount: amount,
       // account_number: accountDetails.account_number
     };
-    Axios.post(`${API_BASE_URL}/payment/users/wallet/withdraw`, withdrawData)
+    Axios.post(getApiUrl(`payment/users/wallet/withdraw`), withdrawData)
       .then((response) => {
         showSuccessSwal("Withdrawal Successful!", `Your wallet withdraw of ${amount}.00 has been successfully submitted and it’s currently being process. kindly exercise patience while the payment is processed.`);
         setTimeout(() => {

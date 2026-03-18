@@ -45,7 +45,7 @@ import { showSuccessToast, showErrorToast, toastContainerProps } from '../../uti
 import Map from "./Map";
 import CallModal from "../callworker/CallModal";
 import EmpFeedbackmodal from "../employerfeedbackmodal/EmpFeedbackmodal";
-import { getApiUrl, NOTIFY } from "../../config";
+import { getApiUrl, getApiBaseUrl, NOTIFY } from "../../config";
 
 // Create a component to display user's location on the map
 const AnyReactComponent = ({ text }) => <div>{text}</div>;
@@ -155,7 +155,7 @@ const Main = () => {
 
     try {
       // Get all reviews submitted by the current user (where they are the reviewer)
-      const response = await Axios.get(`${API_BASE_URL}/rating/ratings/reviewer_${currentUserId}/`);
+      const response = await Axios.get(getApiUrl(`/rating/ratings/reviewer_${currentUserId}/`));
       if (response.data && response.data.reviews) {
         const existingFeedback = response.data.reviews.find(review =>
           review.job_id === jobIdToCheck
@@ -169,7 +169,7 @@ const Main = () => {
 
   // React Query: Job Details
   const fetchJobDetails = async () => {
-    const { data } = await Axios.get(apiUrl(`/jobs/${jobId.id}`));
+    const { data } = await Axios.get(getApiUrl(`/jobs/${jobId.id}`));
     logger.apiResponse(`/jobs/${jobId.id}`, data);
     return data;
   };
@@ -181,7 +181,7 @@ const Main = () => {
 
   // React Query: Saved Jobs (for applicants)
   const fetchSavedJobs = async () => {
-    const { data } = await Axios.get(apiUrl(`/jobs/saved-jobs/${currentUserId}`));
+    const { data } = await Axios.get(getApiUrl(`/jobs/saved-jobs/${currentUserId}`));
     return data.saved_jobs.map(eachjob => eachjob.job.id);
   };
   const { data: savedJobsData = [], isLoading: loadingSavedJobs, error: errorSavedJobs, refetch: refetchSavedJobs } = useQuery({
@@ -205,7 +205,7 @@ const Main = () => {
 
 
     // Fetch application status
-    Axios.get(`${API_BASE_URL}/jobs/application/status/${jobId.id}/${currentUserId}/`)
+    Axios.get(getApiUrl(`/jobs/application/status/${jobId.id}/${currentUserId}/`))
       .then((response) => {
         setApplicantStatus(response.data);
         logger.apiResponse(`/jobs/application/status/${jobId.id}/${currentUserId}`, response.data);
@@ -446,7 +446,7 @@ useEffect(() => {
                   <span>
                     <img
                       className="prof"
-                      src={jobDetails.client_profile_pic_url ? `${API_BASE_URL}${jobDetails.client_profile_pic_url}` : ProfileImage}
+                      src={jobDetails.client_profile_pic_url ? `${getApiBaseUrl()}${jobDetails.client_profile_pic_url}` : ProfileImage}
                       alt="profile"
                       onError={e => { e.target.onerror = null; e.target.src = ProfileImage; }}
                     />

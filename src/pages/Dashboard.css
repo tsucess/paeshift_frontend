@@ -592,7 +592,7 @@ body {
   .dashboard_profile .profile_wrapper {
     width: 13.5rem !important;
     height: 13.5rem !important;
-    border-radius: 1.5rem !important;
+    border-radius: 50% !important;
   }
 
 

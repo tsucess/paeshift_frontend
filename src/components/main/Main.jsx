@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,7 +10,6 @@ import { logger } from "../../utils/logger.js";
 
 import Stars from "../../assets/images/stars.png";
 import iconWallet from "../../assets/images/wallet.png";
-import iconLogo from "../../assets/images/icon-logo.png";
 import Axios from "axios";
 import { faBarsProgress } from "@fortawesome/free-solid-svg-icons";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
@@ -569,7 +568,7 @@ const Main = () => {
         <WithdrawModal accountDetails={accountDetails} />
         <AccountModal />
         {currentUserId && (
-          <Notificationmodal setNewNotification={setNewNotification} setReadCount={setReadCount} />
+          <Notificationmodal />
         )}
       </section>
     </main >

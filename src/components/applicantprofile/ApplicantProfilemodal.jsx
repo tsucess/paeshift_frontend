@@ -11,7 +11,7 @@ import "./ApplicantProfilemodal.css";
 
 import { ToastContainer } from 'react-toastify';
 import { showSuccessToast, toastContainerProps } from '../../utils/toastConfig';
-import { API_BASE_URL } from "../../config";
+import { getApiUrl, getApiBaseUrl } from "../../config";
 import logger from "../../utils/logger";
 
 import timeToSeconds from "../../auth/timeToSeconds";
@@ -79,7 +79,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
       setReviewsError(null);
 
       // Fetch applicant details
-      Axios.get(`${API_BASE_URL}/accountsapp/whoami/${applicantId}`)
+      Axios.get(getApiUrl(`accountsapp/whoami/${applicantId}`))
         .then((response) => {
           setApplicantDetails(response.data);
           setApplicantLoading(false);
@@ -90,7 +90,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
         });
 
       // Fetch jobs
-      Axios.get(`${API_BASE_URL}/jobs/applicants/applicantjobs/${applicantId}`)
+      Axios.get(getApiUrl(`jobs/applicants/applicantjobs/${applicantId}`))
         .then((response) => {
           const jobs = response.data?.jobs_applied || [];
           const jobsWithDuration = jobs.map(job => {
@@ -115,13 +115,13 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
       fetchReviews(applicantId);
 
       // Fetch application status
-      Axios.get(`${API_BASE_URL}/jobs/application/status/${jobId}/${applicantId}/`)
+      Axios.get(getApiUrl(`jobs/application/status/${jobId}/${applicantId}/`))
         .then((response) => {
           setApplicantStatus(response.data);
         })
         .catch(error => logger.error(error));
     }
-  }, [applicantId, API_BASE_URL, jobId]); // <-- Fix: add applicantId as dependency
+  }, [applicantId, jobId]); // <-- Fix: add applicantId as dependency
 
   // Refetch all data when modal is shown
   useEffect(() => {
@@ -134,7 +134,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
         logger.info('📋 Modal shown - refetching data for applicant:', applicantId);
 
         // Refetch applicant details
-        Axios.get(`${API_BASE_URL}/accountsapp/whoami/${applicantId}`)
+        Axios.get(getApiUrl(`accountsapp/whoami/${applicantId}`))
           .then((response) => {
             setApplicantDetails(response.data);
             logger.info('✅ Applicant details refetched');
@@ -142,7 +142,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
           .catch((error) => logger.error("Error refetching applicant details:", error));
 
         // Refetch jobs
-        Axios.get(`${API_BASE_URL}/jobs/applicants/applicantjobs/${applicantId}`)
+        Axios.get(getApiUrl(`jobs/applicants/applicantjobs/${applicantId}`))
           .then((response) => {
             const jobs = response.data?.jobs_applied || [];
             const jobsWithDuration = jobs.map(job => {
@@ -161,7 +161,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
           .catch((error) => logger.error("Error refetching applicant jobs:", error));
 
         // Refetch reviews
-        Axios.get(`${API_BASE_URL}/rating/reviews/${applicantId}`)
+        Axios.get(getApiUrl(`rating/reviews/${applicantId}`))
           .then((response) => {
             setReviews(response.data.data.reviews);
             logger.info('✅ Applicant reviews refetched');
@@ -169,7 +169,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
           .catch((error) => logger.error("Error refetching applicant reviews:", error));
 
         // Refetch application status
-        Axios.get(`${API_BASE_URL}/jobs/application/status/${jobId}/${applicantId}/`)
+        Axios.get(getApiUrl(`jobs/application/status/${jobId}/${applicantId}/`))
           .then((response) => {
             setApplicantStatus(response.data);
             logger.info('✅ Application status refetched');
@@ -180,12 +180,12 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
 
     modalElement.addEventListener('show.bs.modal', handleModalShow);
     return () => modalElement.removeEventListener('show.bs.modal', handleModalShow);
-  }, [applicantId, jobId, API_BASE_URL]);
+  }, [applicantId, jobId]);
 
   const fetchReviews = (applicantId) => {
     setReviewsLoading(true);
     setReviewsError(null);
-    Axios.get(`${API_BASE_URL}/rating/reviews/${applicantId}`)
+    Axios.get(getApiUrl(`rating/reviews/${applicantId}`))
       .then((response) => {
         setReviews(response.data.data.reviews);
         setReviewsLoading(false);
@@ -209,7 +209,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
     setLoading(true);
     setError(null);
 
-    Axios.get(`${API_BASE_URL}/jobs/applicants/applicantjobs/${currentUserId}`)
+    Axios.get(getApiUrl(`jobs/applicants/applicantjobs/${currentUserId}`))
       .then((response) => {
         const jobs = response.data?.jobs_applied || [];
         const jobsWithDuration = jobs.map(job => {
@@ -235,7 +235,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
 
   // Function to refetch application status
   const refetchApplicationStatus = () => {
-    Axios.get(`${API_BASE_URL}/jobs/application/status/${jobId}/${applicantId}/`)
+    Axios.get(getApiUrl(`jobs/application/status/${jobId}/${applicantId}/`))
       .then((response) => {
         setApplicantStatus(response.data);
       })
@@ -334,7 +334,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
                 <div className="row">
                   <div className="col-12 text-center">
                     <div className="profile_wrapper">
-                      <img className="" src={applicantDetails.profile_pic_url ? `${API_BASE_URL}${applicantDetails.profile_pic_url}` : ProfileImage} alt="profile" />
+                      <img className="" src={applicantDetails.profile_pic_url ? `${getApiBaseUrl()}${applicantDetails.profile_pic_url}` : ProfileImage} alt="profile" />
                     </div>
                     <span className="profile_details mt-1">
                       <h4>{applicantDetails.first_name} {applicantDetails.last_name}</h4>
@@ -376,7 +376,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
                     <div className="card_top">
                       <span className="profile_info">
                         <span>
-                          <img className="prof" src={item.client_profile_pic_url ? `${API_BASE_URL}${item.client_profile_pic_url}` : ProfileImage} alt="profile" />
+                          <img className="prof" src={item.client_profile_pic_url ? `${getApiBaseUrl()}${item.client_profile_pic_url}` : ProfileImage} alt="profile" />
                         </span>
                         <span>
                           <h4>{item.client_first_name} {item.client_last_name}</h4>
@@ -426,7 +426,7 @@ const ApplicantProfilemodal = ({ applicantData, savedJob, applicantId, onApplica
                         <div className="ratings">
                           <div className="worker_profile">
                             <span>
-                              <img className="prof" src={item.reviewer_avatar ? `${API_BASE_URL}${item.reviewer_avatar}` : ProfileImage} alt="profile" />
+                              <img className="prof" src={item.reviewer_avatar ? `${getApiBaseUrl()}${item.reviewer_avatar}` : ProfileImage} alt="profile" />
                             </span>
                             <span>
                               <h4>{item.reviewer_name}</h4>

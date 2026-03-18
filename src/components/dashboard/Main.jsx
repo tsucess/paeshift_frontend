@@ -11,7 +11,7 @@ import { VscBellDot } from "react-icons/vsc";
 
 
 import Stars from "../../assets/images/stars.png";
-import { getApiUrl } from "../../config";
+import { getApiUrl, getApiBaseUrl } from "../../config";
 
 import getCurrentUser from "../../auth/getCurrentUser";
 import timeToSeconds from "../../auth/timeToSeconds";
@@ -159,10 +159,30 @@ const Main = () => {
   useEffect(() => {
     if (profile && profile.role === "applicant") {
       // This won't execute for clients, but keeping for consistency
-      Axios.get(`${API_BASE_URL}/jobs/saved-jobs`)
+      Axios.get(getApiUrl(`jobs/saved-jobs`))
         .catch((error) => console.error(error));
     }
   }, [profile]);
+
+  // Fetch unread notification count once on mount
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const { data } = await Axios.get(getApiUrl(`notifications/${currentUserId}/`));
+        const notifications = data?.data?.notifications || [];
+        const unreadCount = notifications.filter(n => !n.is_read).length;
+        setReadCount(unreadCount);
+        localStorage.setItem(`unread_notifications_${currentUserId}`, unreadCount);
+      } catch (error) {
+        console.error("Error fetching unread notifications:", error);
+      }
+    };
+
+    fetchUnreadCount();
+    // Only fetch once on mount, don't poll
+  }, [currentUserId]);
 
   // const [jobId, setJobId] = useState(null);
 
@@ -223,7 +243,7 @@ const Main = () => {
     }
 
     // Make the API call to process payment
-    Axios.post(`${API_BASE_URL}/payment/payments`, payData)
+    Axios.post(getApiUrl(`payment/payments`), payData)
       .then((response) => {
         window.location.href = response.data.data.authorization_url;
         setProcessingPayment(false);
@@ -349,7 +369,7 @@ const Main = () => {
         <div className="row m-0 mt-3 dashboard_profile">
           <div className="col-5 col-md-4 col-xl-2 p-0">
             <div className="profile_wrapper">
-              <img src={`${API_BASE_URL}${profileImage}`} alt="Profile Image" />
+              <img src={`${getApiBaseUrl()}${profileImage}`} alt="Profile Image" />
             </div>
           </div>
       <div className="col-7 col-md-8 col-xl-10 ps-xl-5 ">
@@ -452,7 +472,7 @@ const Main = () => {
                   <div className="card_top">
                     <span className="profile_info">
                       <span>
-                        <img className="prof" src={`${API_BASE_URL}${item.client_profile_pic_url}`} alt="profile" />
+                        <img className="prof" src={`${getApiBaseUrl()}${item.client_profile_pic_url}`} alt="profile" />
                       </span>
                       <span>
                         <h4>{item.client_first_name} {item.client_last_name}</h4>
@@ -505,7 +525,7 @@ const Main = () => {
         </div>
 
         <Jobrequestmodal />
-        <Notificationmodal setNewNotification={handleSetNewNotification} setReadCount={handleSetReadCount} />
+        <Notificationmodal />
         <JobPreviewmodal itemData={selectedJobData} handleDelete={handleDelete} setOutJobData={setOutJobData} selectedJob={selectedJob} />
         <Postmodal setOutJobData={setOutJobData} />
         <EditPostmodal formData={selectedJobData} refreshJobs={refreshJobs} />

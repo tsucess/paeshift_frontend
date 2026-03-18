@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 import { showSuccessSwal, showErrorSwal } from "../../utils/SweetAlert";
 import './AccountModal.css';
 import Axios from "axios";
@@ -22,7 +22,7 @@ function AccountModal() {
     useEffect(() => {
         const loadAccountDetails = () => {
             if (currentUserId) {
-                Axios.get(`${API_BASE_URL}/accountsapp/get-account-details?user_id=${currentUserId}`)
+                Axios.get(getApiUrl(`accountsapp/get-account-details?user_id=${currentUserId}`))
                     .then((response) => {
                         if (response.data && response.data.bank_name) {
                             setFormData({
@@ -68,7 +68,7 @@ function AccountModal() {
             account_number: formData.accountnumber,
             bank_name: formData.bankname
         };
-        Axios.post(`${API_BASE_URL}/accountsapp/upload-account-details`, accountData)
+        Axios.post(getApiUrl(`accountsapp/upload-account-details`), accountData)
             .then((response) => {
                 showSuccessSwal("Success!", response.data.message);
                 setIsLoading(false);

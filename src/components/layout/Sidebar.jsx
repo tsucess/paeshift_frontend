@@ -9,7 +9,7 @@ import ProfileImage from "../../assets/images/profile.png";
 import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { faClose } from "@fortawesome/free-solid-svg-icons/faClose";
 import Axios from "axios";
-import { getApiUrl } from "../../config"; // Import getApiUrl from config
+import { getApiUrl, getApiBaseUrl } from "../../config"; // Import getApiUrl and getApiBaseUrl from config
 
 import "./Sidebar.css";
 
@@ -187,7 +187,7 @@ const Sidebar = () => {
             <div className="profile">
               <div className="profile-dp">
                 {/* <img src={ProfileImage} alt="profile" /> */}
-                <img src={`${getApiUrl('')}${profileImage}`} alt="profile" />
+                <img src={`${getApiBaseUrl()}${profileImage}`} alt="profile" />
               </div>
               <div className="profile-info">
                 <h2>{profile.username}</h2>

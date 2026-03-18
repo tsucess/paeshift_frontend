@@ -1,4 +1,13 @@
 /* Modal Custom CSS  */
+/* Ensure modal backdrop is properly hidden */
+#notificationModal.modal.fade:not(.show) {
+  display: none !important;
+}
+
+#notificationModal.modal.fade:not(.show) ~ .modal-backdrop {
+  display: none !important;
+}
+
 /* .modal-dialog, */
 #notificationModal.come-from-modal.right .modal-header h1 {
   font-size: 1.125rem !important;

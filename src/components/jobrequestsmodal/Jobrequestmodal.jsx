@@ -7,7 +7,7 @@ import { faLocationDot, faStar } from "@fortawesome/free-solid-svg-icons";
 import Axios from "axios";
 import ProfileImage from "../../assets/images/profile.png"
 import "./Jobrequestmodal.css";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 
 import ConvertHoursToTime from "../../auth/ConvertHoursToTime";
 
@@ -77,7 +77,7 @@ const Jobrequestmodal = () => {
     setLoading(true);
     setError(null);
 
-    Axios.get(`${API_BASE_URL}/jobs/clients/clientjobs/${currentUserId}`)
+    Axios.get(getApiUrl(`jobs/clients/clientjobs/${currentUserId}`))
       .then((response) => {
         setJobs(response.data.jobs);
         setLoading(false);
@@ -148,7 +148,7 @@ const Jobrequestmodal = () => {
                       onClick={() => {
                         setLoading(true);
                         setError(null);
-                        Axios.get(`${API_BASE_URL}/jobs/clients/clientjobs/${userId}`)
+                        Axios.get(getApiUrl(`jobs/clients/clientjobs/${userId}`))
                           .then((response) => {
                             setJobs(response.data.jobs);
                             setLoading(false);

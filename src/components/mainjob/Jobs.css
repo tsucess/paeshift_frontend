@@ -1,3 +1,34 @@
+:root {
+  --primary-purple: #5E0096;
+  --color-primary-dark: #071830;
+  --color-primary-light: #ba5af2;
+  --color-bg-light: #ece5ff;
+  --color-bg: #F2F1F8;
+  --color-primary-blue: #1A69AF;
+  --color-secondary: #0D2F5F;
+  --color-secondary-dark: #071830;
+  --color-secondary-light: #35527A;
+  --color-primary-accent: #5800E5;
+  --color-secondary-accent: #0D5F55;
+  --color-tertiary-accent: #5F0D2F;
+  --color-text-white: #ffffff;
+  --color-text-dark: #000000;
+  --color-bg-ash: #5E7494;
+  --color-ash: #AEBACA;
+  --color-light-yellow: #FFFFE5;
+  --color-light-red: #ffEBEB;
+  --color-light-green: #EBFFEB;
+  --color-text-yellow: #676700;
+  --color-text-green: #009900;
+  --color-text-red: #ff0000;
+  --color-text-ash: #8898AA;
+  --primary-purple-hover: #5f0096df;
+  --box-shadow: 0 2px 8px -4px #000000;
+  --font-family-body: "Bricolage Grotesque", serif;
+  --font-family-text: "Archivo", serif;
+  --bg-gradient: linear-gradient("7E40EA");
+}
+
 .navbar-toggler span.d-icon {
   border: 1px solid var(--primary-purple);
 }
@@ -540,4 +571,120 @@ select.filter-btn {
 
 .dashboard_container {
   padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard_container {
+    padding: 2rem;
+  }
+
+  #sidebarMenu {
+    top: 0px !important;
+    padding-top: 1rem !important;
+  }
+
+  .sidebar-sticky {
+    overflow-x: none !important;
+    scrollbar-width: none;
+  }
+
+  .sidebar-brand {
+    margin-top: -1rem;
+  }
+
+  .sidebar-brand .icon-close {
+    margin-left: 6.5rem !important;
+    padding: 0.2rem 0.3rem;
+    margin-top: -1rem;
+  }
+
+  .profile {
+    margin-bottom: 2.5rem !important;
+  }
+
+  .profile-logout {
+    bottom: -5rem !important;
+  }
+
+  .page_header {
+    width: 22% !important;
+    flex-direction: row-reverse;
+  }
+
+  .navbar-toggler {
+    margin-top: 0.7rem;
+  }
+
+  .container__data .cards {
+    gap: 0.8rem !important;
+  }
+
+  .container__data .card {
+    width: 48% !important;
+    margin-bottom: 0.8rem !important;
+  }
+
+  .container__data .container_bottom {
+    padding: 2rem !important;
+  }
+
+  .container__data .job_details {
+    padding: 1.5rem !important;
+  }
+
+  .container__data .container_bottom p {
+    font-size: 1rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  .container__data .container_bottom h2 {
+    font-size: 1rem !important;
+    line-height: 1.2rem !important;
+  }
+
+  .container__data .card .bottom button.track-btn {
+    padding: 0.75rem 2.8rem !important;
+  }
+
+  .container__data .card .bottom button.cancel {
+    padding: 0.75rem 1.8rem !important;
+  }
+
+  .container__data .buttons button.saved {
+    padding: 0.8rem 4rem !important;
+  }
+
+  .container__data .buttons button.apply-btn {
+    padding: 0.8rem 12rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard_container {
+    padding: 1rem;
+  }
+
+  main {
+    min-height: 100vh;
+  }
+
+  .profile-logout {
+    bottom: -10.5rem !important;
+  }
+
+  .page_header {
+    width: auto !important;
+  }
+
+  .page_title h1 {
+    font-size: 1.8rem !important;
+  }
+
+  .container__data .card {
+    width: 32% !important;
+  }
+
+  .container__data .cards {
+    gap: 1rem !important;
+  }
 }

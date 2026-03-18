@@ -1,15 +1,20 @@
 import React from 'react'
 import Sidebar from "../components/sidebar/Sidebar";
 import Main from "../components/settings/Main";
-import { useNavigate } from "react-router-dom";
+import "./Settings.css";
+
+
+
 const Settings = () => {
+
+
   return (
     <div className="container-fluid dashboard_container">
-    <div className="row p-0">
-      <Sidebar />
-      <Main />
+      <div className="row p-0">
+        <Sidebar />
+        <Main />
+      </div>
     </div>
-  </div>
   )
 }
 

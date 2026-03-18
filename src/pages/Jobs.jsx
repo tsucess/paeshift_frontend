@@ -2,6 +2,7 @@ import React from 'react'
 import Sidebar from "../components/sidebar/Sidebar";
 import Main from "../components/mainjob/Main";
 import { useNavigate } from "react-router-dom";
+import "./Jobs.css";
 
 
 

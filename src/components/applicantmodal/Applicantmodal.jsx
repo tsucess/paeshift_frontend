@@ -8,7 +8,7 @@ import { faBarsProgress, faLocation, faLocationArrow, faLocationDot } from "@for
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import ProfileImage from "../../assets/images/profile.png"
 import "./Applicantmodal.css";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 import logger from "../../utils/logger";
 
 import Axios from "axios";
@@ -41,14 +41,14 @@ const Applicantmodal = ({ getApplicantId, jobId }) => {
 
     useEffect(() => {
         let isMounted = true;
-        Axios.get(`${API_BASE_URL}/jobs/${jobId.id}`)
+        Axios.get(getApiUrl(`jobs/${jobId.id}`))
             .then((response) => {
                 setApplicantsId(response.data.applicants_user_ids);
                 const applicantsIds = response.data.applicants_user_ids;
                 if (Array.isArray(applicantsIds) && applicantsIds.length > 0) {
                     Promise.all(
                         applicantsIds.map(applicantId =>
-                            Axios.get(`${API_BASE_URL}/accountsapp/whoami/${applicantId}`)
+                            Axios.get(getApiUrl(`accountsapp/whoami/${applicantId}`))
                                 .then(res => res.data)
                                 .catch(error => null)
                         )

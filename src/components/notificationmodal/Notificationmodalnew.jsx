@@ -13,7 +13,7 @@ import "./Notificationmodal.css";
 import Axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getApiUrl } from "../../config.js";
+import { getApiUrl, getApiBaseUrl } from "../../config.js";
 
 const Notificationmodal = () => {
     // State management
@@ -133,7 +133,7 @@ const Notificationmodal = () => {
         // Update local state to show loading
         setMarkingAsRead(prev => ({ ...prev, [notificationId]: true }));
 
-        Axios.post(`${API_BASE_URL}/notifications/notifications/${currentUserId}/${notificationId}/mark-as-read/`)
+        Axios.post(getApiUrl(`notifications/notifications/${currentUserId}/${notificationId}/mark-as-read/`))
             .then((response) => {
                 if (response.data && response.status === 200) {
                     // Update notification in state

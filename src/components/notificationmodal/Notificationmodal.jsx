@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useQuery } from '@tanstack/react-query';
 import successLogo from "../../assets/images/success.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,63 +14,48 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { showErrorToast } from '../../utils/toastConfig';
 
-
-
-
+/**
+ * Notification Modal Component
+ *
+ * Proper implementation following React best practices:
+ * - Stable dependency chains
+ * - Memoized callbacks to prevent unnecessary re-renders
+ * - Proper useEffect cleanup
+ * - No setState in render cycles
+ * - Efficient state updates
+ */
 
 import Axios from "axios";
-
-
-
-
 import { format, parseISO, isToday, isYesterday, startOfDay } from 'date-fns';
 import { getApiUrl } from "../../config";
 
 
 
-
-
-
-const Notificationmodal = ({ setNewNotification, setReadCount, notificationData, refetchNotifications, pollingInterval = 10000 }) => {
-    const [filteredNotifications, setFilteredNotifications] = useState([]);
+const Notificationmodal = ({ notificationData, refetchNotifications }) => {
+    // ============ STATE MANAGEMENT ============
     const [activeFilter, setActiveFilter] = useState('all');
     const [markingAsRead, setMarkingAsRead] = useState({});
-    const currentUserId = localStorage.getItem("user_id");
-
-    // Track modal open state
     const [modalOpen, setModalOpen] = useState(false);
 
-    useEffect(() => {
-        if (!currentUserId) {
-            setModalOpen(false);
-            return;
-        }
-        const modal = document.getElementById('notificationModal');
-        if (!modal) return;
-        const handleShow = () => setModalOpen(true);
-        const handleHide = () => setModalOpen(false);
-        modal.addEventListener('show.bs.modal', handleShow);
-        modal.addEventListener('hide.bs.modal', handleHide);
-        return () => {
-            modal.removeEventListener('show.bs.modal', handleShow);
-            modal.removeEventListener('hide.bs.modal', handleHide);
-        };
-    }, [currentUserId]);
+    // Get user ID once and cache it
+    const currentUserId = useRef(localStorage.getItem("user_id")).current;
 
-    const fetchNotifications = async () => {
+    // ============ FETCH NOTIFICATIONS ============
+    // Fetch function - stable reference
+    const fetchNotifications = useCallback(async () => {
         if (!currentUserId) return [];
         try {
             const { data } = await Axios.get(getApiUrl(`notifications/${currentUserId}/`));
             return data?.data?.notifications || [];
         } catch (error) {
-            // If unauthorized, user might be logged out
             if (error.response?.status === 401) {
                 return [];
             }
             throw error;
         }
-    };
+    }, [currentUserId]);
 
+    // React Query hook - only fetches if no prop data provided
     const {
         data: notifications = [],
         isLoading,
@@ -80,111 +65,110 @@ const Notificationmodal = ({ setNewNotification, setReadCount, notificationData,
         queryKey: ['modalNotifications', currentUserId],
         queryFn: fetchNotifications,
         enabled: Boolean(currentUserId) && !notificationData,
-        refetchInterval: currentUserId && modalOpen ? pollingInterval : false, // Only poll when modal is open and user is logged in
-        retry: false // Don't retry on auth errors
+        refetchInterval: false,
+        retry: false,
+        staleTime: Infinity,
+        gcTime: Infinity
     });
 
-    // Use prop data if available, else use local query - memoized to prevent unnecessary re-renders
+    // ============ MODAL LIFECYCLE ============
+    // Initialize modal state on mount
+    useEffect(() => {
+        const modal = document.getElementById('notificationModal');
+        if (!modal) return;
+
+        const bsModal = window.bootstrap?.Modal.getInstance(modal);
+        if (bsModal) {
+            bsModal.hide();
+        }
+    }, []);
+
+    // Track modal open/close events
+    useEffect(() => {
+        if (!currentUserId) {
+            setModalOpen(false);
+            return;
+        }
+
+        const modal = document.getElementById('notificationModal');
+        if (!modal) return;
+
+        const handleShow = () => setModalOpen(true);
+        const handleHide = () => setModalOpen(false);
+
+        modal.addEventListener('show.bs.modal', handleShow);
+        modal.addEventListener('hide.bs.modal', handleHide);
+
+        return () => {
+            modal.removeEventListener('show.bs.modal', handleShow);
+            modal.removeEventListener('hide.bs.modal', handleHide);
+        };
+    }, [currentUserId]);
+
+    // ============ DATA PROCESSING ============
+    // Get notifications from prop or query
     const notificationsList = useMemo(() => {
         return notificationData?.notifications || notifications;
     }, [notificationData, notifications]);
 
-
-
-  const notifyError = (message) => {
-    return showErrorToast(message);
-  };
-
-    // Apply filter to notifications - memoized to prevent infinite re-renders
-    const applyFilter = useCallback((filter, notificationsToFilter) => {
-        if (!Array.isArray(notificationsToFilter)) {
+    // Filter notifications based on active filter
+    const filteredNotifications = useMemo(() => {
+        if (!Array.isArray(notificationsList)) {
             return [];
         }
 
-        switch (filter) {
+        switch (activeFilter) {
             case "read":
-                return notificationsToFilter.filter(notification => notification.is_read);
+                return notificationsList.filter(notification => notification.is_read);
             case "unread":
-                return notificationsToFilter.filter(notification => !notification.is_read);
+                return notificationsList.filter(notification => !notification.is_read);
             case "all":
             default:
-                return notificationsToFilter;
+                return notificationsList;
         }
+    }, [notificationsList, activeFilter]);
+
+    // ============ EVENT HANDLERS ============
+    // Handle filter change
+    const handleFilterChange = useCallback((filter) => {
+        setActiveFilter(filter);
     }, []);
 
-
-    // Handle filter change
-    const handleFilterChange = (filter) => {
-        setActiveFilter(filter);
-    };
-
     // Mark notification as read
-    const handleReadNotification = (notificationId) => {
+    const handleReadNotification = useCallback((notificationId) => {
         if (!notificationId || markingAsRead[notificationId]) return;
 
         setMarkingAsRead(prev => ({ ...prev, [notificationId]: true }));
 
-        Axios.post(`${API_BASE_URL}/notifications/notifications/${currentUserId}/${notificationId}/mark-as-read/`)
+        Axios.post(getApiUrl(`notifications/notifications/${currentUserId}/${notificationId}/mark-as-read/`))
             .then((response) => {
-                if (response.data && response.status === 200) {
-                    // Refetch notifications for real-time update
+                if (response.status === 200) {
+                    // Refetch if parent provides the function
                     if (typeof refetchNotifications === 'function') {
-                        refetchNotifications();
+                        setTimeout(() => refetchNotifications(), 100);
                     } else {
+                        // Otherwise refetch locally
                         refetchNotificationsLocal();
                     }
                 } else {
-                    notifyError("Failed to mark notification as read");
+                    showErrorToast("Failed to mark notification as read");
                 }
             })
             .catch((error) => {
                 console.error("Error marking notification as read:", error);
-                notifyError("Failed to mark notification as read");
+                showErrorToast("Failed to mark notification as read");
             })
             .finally(() => {
                 setMarkingAsRead(prev => ({ ...prev, [notificationId]: false }));
             });
-    };
+    }, [currentUserId, markingAsRead, refetchNotifications, refetchNotificationsLocal]);
 
-    // Combine all state updates into a single useEffect to prevent cascading updates
-    useEffect(() => {
-        if (!currentUserId || !Array.isArray(notificationsList)) {
-            return;
-        }
-
-        // Apply filter
-        const filtered = applyFilter(activeFilter, notificationsList);
-        setFilteredNotifications(filtered);
-
-        // Update new notification count
-        if (typeof setNewNotification === "function") {
-            const unreadCount = notificationsList.filter(n => !n.is_read).length;
-            setNewNotification(unreadCount);
-            localStorage.setItem(`unread_notifications_${currentUserId}`, unreadCount);
-        }
-
-        // Update read count
-        if (typeof setReadCount === "function") {
-            const unreadCount = filtered.filter(n => !n.is_read).length;
-            setReadCount(unreadCount);
-        }
-    }, [notificationsList, activeFilter, currentUserId]);
-
-    // Initialize unread count from localStorage on component mount
-    useEffect(() => {
-        if (currentUserId && typeof setNewNotification === "function") {
-            const savedUnreadCount = localStorage.getItem(`unread_notifications_${currentUserId}`);
-            if (savedUnreadCount !== null) {
-                setNewNotification(parseInt(savedUnreadCount, 10));
-            }
-        }
-    }, [currentUserId]);
-
-    // Group notifications by date
-    const groupNotificationsByDate = (notifications) => {
+    // ============ UTILITY FUNCTIONS ============
+    // Group notifications by date - memoized
+    const groupedNotifications = useMemo(() => {
         const grouped = {};
 
-        notifications.forEach(notification => {
+        filteredNotifications.forEach(notification => {
             const date = parseISO(notification.created_at);
             const dateKey = format(startOfDay(date), 'yyyy-MM-dd');
 
@@ -202,10 +186,10 @@ const Notificationmodal = ({ setNewNotification, setReadCount, notificationData,
             dateString: dateKey,
             notifications: grouped[dateKey]
         }));
-    };
+    }, [filteredNotifications]);
 
     // Get display label for date
-    const getDateLabel = (date) => {
+    const getDateLabel = useCallback((date) => {
         if (isToday(date)) {
             return 'Today';
         } else if (isYesterday(date)) {
@@ -213,7 +197,7 @@ const Notificationmodal = ({ setNewNotification, setReadCount, notificationData,
         } else {
             return format(date, 'EEEE, MMMM d, yyyy');
         }
-    };
+    }, []);
 
 
 
@@ -292,62 +276,59 @@ const Notificationmodal = ({ setNewNotification, setReadCount, notificationData,
                         {/* Notifications list */}
                         {!isLoading && !error && filteredNotifications.length > 0 && (
                             <>
-                                {(() => {
-                                    const groupedNotifications = groupNotificationsByDate(filteredNotifications);
-                                    return groupedNotifications.map((group, groupIndex) => (
-                                        <div key={groupIndex}>
-                                            <div className="title">
-                                                <h3>{getDateLabel(group.date)}</h3>
-                                            </div>
-                                            {group.notifications.map((item, itemIndex) => (
-                                                <div
-                                                    className={`row notify_details mb-3 ${item.is_read ? 'read' : 'unread'}`}
-                                                    key={itemIndex}
-                                                    onClick={() => !item.is_read && handleReadNotification(item.id)}
-                                                >
-                                                    <div className="col-7 labels title">
-                                                        <div className="profile_wrapper">
-                                                            <img src={successLogo} alt="" />
-                                                        </div>
-                                                        <p className="m-0" >{item.category}</p>
-                                                    </div>
-                                                    <div className="col-5 values">
-                                                        <p className="m-0 datetime">
-                                                            {format(parseISO(item.created_at), "HH:mm:ss")}
-                                                        </p>
-                                                    </div>
-                                                    <div className="col-12 mt-2 labels message">
-                                                        <p>{item.message}</p>
-                                                    </div>
-                                                    <div className="col-5 labels">
-                                                        <button
-                                                            type="button"
-                                                            disabled={markingAsRead[item.id] || item.is_read}
-                                                        >
-                                                            {markingAsRead[item.id] ? (
-                                                                <FontAwesomeIcon icon={faSpinner} spin className="notify_icon" />
-                                                            ) : (
-                                                                <FontAwesomeIcon
-                                                                    icon={item.is_read ? faCheckDouble : faCheck}
-                                                                    className="notify_icon"
-                                                                />
-                                                            )}
-                                                            {item.is_read ? "Read" : "Mark as Read"}
-                                                        </button>
-                                                    </div>
-                                                    {/* Only show link if item.link exists and is a non-empty string */}
-                                                    {item.link && typeof item.link === 'string' && item.link.trim() !== '' && (
-                                                      <div className="col-7 values">
-                                                        <a href={item.link} target="_blank" rel="noopener noreferrer">
-                                                          View Details <FontAwesomeIcon icon={faChevronRight} className="notify_icon" />
-                                                        </a>
-                                                      </div>
-                                                    )}
-                                                </div>
-                                            ))}
+                                {groupedNotifications.map((group, groupIndex) => (
+                                    <div key={groupIndex}>
+                                        <div className="title">
+                                            <h3>{getDateLabel(group.date)}</h3>
                                         </div>
-                                    ));
-                                })()}
+                                        {group.notifications.map((item) => (
+                                            <div
+                                                className={`row notify_details mb-3 ${item.is_read ? 'read' : 'unread'}`}
+                                                key={item.id}
+                                                onClick={() => !item.is_read && handleReadNotification(item.id)}
+                                            >
+                                                <div className="col-7 labels title">
+                                                    <div className="profile_wrapper">
+                                                        <img src={successLogo} alt="" />
+                                                    </div>
+                                                    <p className="m-0" >{item.category}</p>
+                                                </div>
+                                                <div className="col-5 values">
+                                                    <p className="m-0 datetime">
+                                                        {format(parseISO(item.created_at), "HH:mm:ss")}
+                                                    </p>
+                                                </div>
+                                                <div className="col-12 mt-2 labels message">
+                                                    <p>{item.message}</p>
+                                                </div>
+                                                <div className="col-5 labels">
+                                                    <button
+                                                        type="button"
+                                                        disabled={markingAsRead[item.id] || item.is_read}
+                                                    >
+                                                        {markingAsRead[item.id] ? (
+                                                            <FontAwesomeIcon icon={faSpinner} spin className="notify_icon" />
+                                                        ) : (
+                                                            <FontAwesomeIcon
+                                                                icon={item.is_read ? faCheckDouble : faCheck}
+                                                                className="notify_icon"
+                                                            />
+                                                        )}
+                                                        {item.is_read ? "Read" : "Mark as Read"}
+                                                    </button>
+                                                </div>
+                                                {/* Only show link if item.link exists and is a non-empty string */}
+                                                {item.link && typeof item.link === 'string' && item.link.trim() !== '' && (
+                                                  <div className="col-7 values">
+                                                    <a href={item.link} target="_blank" rel="noopener noreferrer">
+                                                      View Details <FontAwesomeIcon icon={faChevronRight} className="notify_icon" />
+                                                    </a>
+                                                  </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ))}
                             </>
                         )}
                     </div>

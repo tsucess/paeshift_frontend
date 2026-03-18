@@ -8,7 +8,7 @@ import ProfileImage from "../../assets/images/profile.png";
 
 import Axios from "axios";
 import getCurrentUser from "../../auth/getCurrentUser";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 import { toast } from "react-toastify";
 
 const Walletmodal = ({ accountDetails }) => {
@@ -55,7 +55,7 @@ const Walletmodal = ({ accountDetails }) => {
     getCurrentUser(setProfile);
 
     Axios.get(
-      `${API_BASE_URL}/payment/users/${currentUserId}/wallet/transactions`
+      getApiUrl(`payment/users/${currentUserId}/wallet/transactions`)
     )
       .then((response) => {
         if (response.data && response.data.data.results) {

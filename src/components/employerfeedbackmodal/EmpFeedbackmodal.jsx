@@ -5,7 +5,7 @@ import "./EmpFeedbackmodal.css";
 import { showSuccessToast, showErrorToast } from '../../utils/toastConfig';
 
 import Axios from "axios";
-import { API_BASE_URL } from "../../config";
+import { getApiUrl } from "../../config";
 
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
@@ -29,6 +29,7 @@ const EmpFeedbackmodal = ({ jobId, receiverIds, modalId = "EmpFeedbackModal", on
     // ALL hooks must be declared before any conditional logic or early returns
     const [rating, setRating] = useState(0);
     const [rateColor, setRateColor] = useState("");
+    const [feedback, setFeedback] = useState("");
     const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
     const [isCheckingFeedback, setIsCheckingFeedback] = useState(false);
     const [formikKey, setFormikKey] = useState(0); // Key to force Formik reset
@@ -41,7 +42,7 @@ const EmpFeedbackmodal = ({ jobId, receiverIds, modalId = "EmpFeedbackModal", on
         setIsCheckingFeedback(true);
         try {
             // Get all reviews submitted by the current user (where they are the reviewer)
-            const response = await Axios.get(`${API_BASE_URL}/rating/ratings/reviewer_${currentUserId}/`);
+            const response = await Axios.get(getApiUrl(`rating/ratings/reviewer_${currentUserId}/`));
             if (response.data && response.data.reviews) {
                 const existingFeedback = response.data.reviews.find(review =>
                     review.job_id === jobId
@@ -59,15 +60,6 @@ const EmpFeedbackmodal = ({ jobId, receiverIds, modalId = "EmpFeedbackModal", on
     useEffect(() => {
         // Only run effect if we have valid jobId and receiverIds
         if (!jobId || !receiverIds) return;
-
-        Axios.get(`${API_BASE_URL}/jobs/${jobId}`)
-            .then(
-                (response) => {
-                    if (response.data && response.data.client_id) {
-                        getClientUserId(response.data.client_id);
-                    }
-                }
-            ).catch(error => console.error(error));
 
         // Check feedback status
         checkFeedbackStatus();
@@ -116,7 +108,7 @@ const EmpFeedbackmodal = ({ jobId, receiverIds, modalId = "EmpFeedbackModal", on
         }
 
         try {
-            const response = await Axios.post(`${API_BASE_URL}/rating/ratings/`, pendingFeedbackData);
+            const response = await Axios.post(getApiUrl(`rating/ratings/`), pendingFeedbackData);
 
             if (response.status === 201) {
 
