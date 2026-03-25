@@ -954,7 +954,7 @@ const Main = () => {
                                 />
                               </span>
                               <span>
-                                <h4>Payment {transaction.reference}</h4>
+                                <h4 className="payment-reference">Payment {transaction.reference}</h4>
                                 <p className="date">{formatDate(transaction.created_at)}</p>
                               </span>
                             </span>

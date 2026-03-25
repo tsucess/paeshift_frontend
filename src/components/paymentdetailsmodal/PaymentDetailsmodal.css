@@ -222,3 +222,162 @@
   border-color: #5E0096;
   color: #5E0096;
 }
+
+/* Mobile Responsive - Invoice Receipt Modal */
+@media (max-width: 576px) {
+  /* Modal Dialog */
+  #paymentDetailsModal.come-from-modal.right .modal-dialog {
+    margin: 0.5rem;
+    max-width: calc(100% - 1rem);
+  }
+
+  #paymentDetailsModal.come-from-modal.right .invoice-receipt-modal {
+    border-radius: 12px;
+  }
+
+  /* Header */
+  #paymentDetailsModal.come-from-modal.right .invoice-header {
+    padding: 1rem;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .invoice-header .modal-title {
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .invoice-header .btn-close {
+    width: 28px;
+    height: 28px;
+    font-size: 0.5rem;
+  }
+
+  /* Body */
+  #paymentDetailsModal.come-from-modal.right .invoice-body {
+    padding: 1rem;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  /* Logo Section */
+  #paymentDetailsModal.come-from-modal.right .invoice-logo-section {
+    margin-bottom: 1rem;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .invoice-logo {
+    max-width: 80px;
+  }
+
+  /* Payment Section */
+  #paymentDetailsModal.come-from-modal.right .invoice-payment-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .payment-method-badge {
+    width: 100%;
+    gap: 0.75rem;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .payment-method-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .payment-method-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .payment-method-name {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .payment-method-detail {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .payment-amount {
+    text-align: left;
+    width: 100%;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .amount-label {
+    font-size: 0.75rem;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .amount-value {
+    font-size: 1.25rem;
+  }
+
+  /* Details Sections */
+  #paymentDetailsModal.come-from-modal.right .invoice-details-section,
+  #paymentDetailsModal.come-from-modal.right .invoice-job-section,
+  #paymentDetailsModal.come-from-modal.right .invoice-workers-section {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+  }
+
+  /* Detail Rows */
+  #paymentDetailsModal.come-from-modal.right .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 0.5rem 0;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .detail-label {
+    font-size: 0.8rem;
+    color: #999;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .detail-value {
+    font-size: 0.8rem;
+    text-align: left;
+    word-break: break-word;
+    color: #1a1a1a;
+  }
+
+  /* Worker Rows */
+  #paymentDetailsModal.come-from-modal.right .worker-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 0.5rem 0;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .worker-label {
+    font-size: 0.8rem;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .worker-value {
+    font-size: 0.8rem;
+    word-break: break-word;
+  }
+
+  /* Footer */
+  #paymentDetailsModal.come-from-modal.right .invoice-footer {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    justify-content: stretch;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .invoice-footer .btn {
+    padding: 0.65rem 1rem;
+    font-size: 0.85rem;
+    min-width: auto;
+    width: 100%;
+  }
+}
